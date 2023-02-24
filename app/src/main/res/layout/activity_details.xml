@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:background="@color/purple_900"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context=".DetailsActivity">
+
+        <ImageView
+            android:id="@+id/cover"
+            android:layout_width="0dp"
+            android:layout_height="275dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_launcher_background" />
+
+        <ImageView
+            android:id="@+id/imageView7"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            app:layout_constraintBottom_toBottomOf="@+id/cover"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/gradient_bg" />
+
+        <ImageView
+            android:id="@+id/thumb"
+            android:layout_width="125dp"
+            android:layout_height="175dp"
+            android:layout_marginStart="16dp"
+            android:scaleType="centerCrop"
+            android:transitionName="ImageMain"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/imageView7"
+            app:layout_constraintTop_toTopOf="@+id/imageView7"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+        <TextView
+            android:id="@+id/title_details"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="TextView"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/thumb"
+            app:layout_constraintTop_toBottomOf="@+id/cover" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/textView4"
+        android:textColor="@color/white"
+        android:layout_marginTop="16dp"
+        android:background="@color/color_bg_blue"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp"
+        android:textSize="24sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Episodes" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView_parts"
+        android:layout_width="match_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:textColor="@color/white"
+        android:layout_marginTop="16dp"
+        android:background="@color/color_bg_blue"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp"
+        android:textSize="24sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cast" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView_cast"
+        android:layout_width="match_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_height="wrap_content" />
+
+
+</LinearLayout>
