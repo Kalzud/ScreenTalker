@@ -27,21 +27,43 @@ import java.util.List;
 public class SliderAdapter extends SliderViewAdapter<SliderAdapter.MyViewHolder> {
 
     private Context context;
+    private List<DataModel> dataModels;
 
     public SliderAdapter(Context context){
         this.context = context;
     }
-    private List<DataModel> dataModels = new ArrayList<>();
+    public SliderAdapter(Context context, List<DataModel> dataModels){
+        this.context = context;
+        this.dataModels = dataModels;
+    }
+
 
     //Renew data showing on slider
     public void renewItems(List<DataModel> dataModels){
-        this.dataModels = dataModels;
+        setDataModels(dataModels);
+//        this.dataModels = dataModels;
         notifyDataSetChanged();
     }
+
+
+
+    public List<DataModel> getDataModels() {
+        return dataModels;
+    }
+
+
+    private void setDataModels(List<DataModel> dataModels) {
+        this.dataModels = dataModels;
+    }
+
     //remove current data on slider
     public void deleteItems(int position){
-        this.dataModels.remove(position);
+       remove(position);
         notifyDataSetChanged();
+    }
+
+    private void remove(int position){
+        this.dataModels.remove(position);
     }
 
     //show the slider layout
