@@ -1,5 +1,7 @@
 package com.eou.screentalker;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -32,6 +35,25 @@ public class FeaturedAdapter extends RecyclerView.Adapter<FeaturedAdapter.MyView
                 holder.textView.setText(featuredModels.get(position).getFtitle());
                 // here we load thumbnails
                 Glide.with(holder.itemView.getContext()).load(featuredModels.get(position).getFthumb()).into(holder.imageView);
+
+                //linking to the detail activity for the movie
+                holder.itemView.setOnClickListener(v -> {
+                        // to send user to details activity when they click on movie card using intent
+                        Intent sendDataToDetailsActivity = new Intent(holder.itemView.getContext(),DetailsActivity.class);
+                        sendDataToDetailsActivity.putExtra("title", featuredModels.get(position).getFtitle());
+                        sendDataToDetailsActivity.putExtra("link", featuredModels.get(position).getFlink());
+                        sendDataToDetailsActivity.putExtra("cover", featuredModels.get(position).getFcover());
+                        sendDataToDetailsActivity.putExtra("thumb", featuredModels.get(position).getFthumb());
+                        sendDataToDetailsActivity.putExtra("des", featuredModels.get(position).getFdes());
+                        sendDataToDetailsActivity.putExtra("cast", featuredModels.get(position).getFcast());
+                        sendDataToDetailsActivity.putExtra("t_link", featuredModels.get(position).getTlink());
+
+                        //creating transition animation
+                        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                (Activity) holder.itemView.getContext(),holder.imageView,"ImageMain");
+                        //sharedElementsName is same as xml file
+                        holder.itemView.getContext().startActivity(sendDataToDetailsActivity,optionsCompat.toBundle());
+                });
         }
 
         @Override

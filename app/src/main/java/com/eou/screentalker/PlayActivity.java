@@ -64,9 +64,10 @@ public class PlayActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(VIDEO_TITLE);
 
         //back button
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setIcon(R.drawable.ic_baseline_arrow_back_ios_24);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
 //
 //        TextView internetStatus = (TextView) findViewById(R.id.internet_status);
 //        if (!isOnline(this)) {

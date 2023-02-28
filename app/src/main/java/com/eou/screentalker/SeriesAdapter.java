@@ -1,5 +1,7 @@
 package com.eou.screentalker;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -33,6 +36,25 @@ public class SeriesAdapter extends RecyclerView.Adapter<SeriesAdapter.MyViewHold
         holder.textView.setText(seriesModels.get(position).getStitle());
         // here we load thumbnails
         Glide.with(holder.itemView.getContext()).load(seriesModels.get(position).getSthumb()).into(holder.imageView);
+
+        //linking to the detail activity for the series
+        holder.itemView.setOnClickListener(v -> {
+            // to send user to details activity when they click on movie card using intent
+            Intent sendDataToDetailsActivity = new Intent(holder.itemView.getContext(),DetailsActivity.class);
+            sendDataToDetailsActivity.putExtra("title", seriesModels.get(position).getStitle());
+            sendDataToDetailsActivity.putExtra("link", seriesModels.get(position).getSlink());
+            sendDataToDetailsActivity.putExtra("cover", seriesModels.get(position).getScover());
+            sendDataToDetailsActivity.putExtra("thumb", seriesModels.get(position).getSthumb());
+            sendDataToDetailsActivity.putExtra("des", seriesModels.get(position).getSdes());
+            sendDataToDetailsActivity.putExtra("cast", seriesModels.get(position).getScast());
+            sendDataToDetailsActivity.putExtra("t_link", seriesModels.get(position).getTlink());
+
+            //creating transition animation
+            ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    (Activity) holder.itemView.getContext(),holder.imageView,"ImageMain");
+            //sharedElementsName is same as xml file
+            holder.itemView.getContext().startActivity(sendDataToDetailsActivity,optionsCompat.toBundle());
+        });
     }
 
     @Override
