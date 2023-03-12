@@ -1,11 +1,6 @@
 package com.eou.screentalker;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.MockedConstruction;
-import org.mockito.Mockito;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -14,15 +9,13 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockingDetails;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 //import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import android.content.Context;
-import android.content.Intent;
-import android.view.View;
-import android.view.ViewGroup;
+
+import com.eou.screentalker.Adapters.SliderAdapter;
+import com.eou.screentalker.Models.DataModel;
 
 public class SliderAdapterTest {
 //    private SliderAdapter adapterMock;

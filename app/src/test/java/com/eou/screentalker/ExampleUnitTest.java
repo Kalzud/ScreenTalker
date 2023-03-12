@@ -4,13 +4,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-import android.content.Context;
-
-import java.util.ArrayList;
-import java.util.List;
-import com.eou.screentalker.SliderAdapter;
-import org.mockito.Mock;
-
 /**
  * Example local unit test, which will execute on the development machine (host).
  *

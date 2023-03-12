@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menuProfile"
+        android:icon="@drawable/ic_person"
+        android:title="@string/profile" />
+    <item android:id="@+id/menuMessage"
+        android:icon="@drawable/ic_message"
+        android:title="@string/message"/>
+    <item android:id="@+id/menuCommunities"
+        android:icon="@drawable/ic_communities"
+        android:title="@string/communities"/>
+    <item android:id="@+id/menuStream"
+        android:icon="@drawable/ic_stream"
+        android:title="@string/stream"/>
+    <item android:title="@string/others">
+          <menu>
+              <item android:id="@+id/menuSetting"
+                  android:icon="@drawable/ic_settings"
+                  android:title="@string/settings"/>
+          </menu>
+    </item>
+</menu>

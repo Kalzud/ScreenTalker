@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/player_bg">
+    <item android:id="@+id/menuProfile"
+        android:icon="@drawable/ic_person"
+        android:title="@string/profile"/>
+    <item android:id="@+id/menuMessage"
+        android:icon="@drawable/ic_message"
+        android:title="@string/message"/>
+</menu>

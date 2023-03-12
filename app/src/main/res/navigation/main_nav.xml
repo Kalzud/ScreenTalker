@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav"
+    app:startDestination="@id/menuStream">
+
+    <fragment
+        android:id="@+id/menuCommunities"
+        android:name="com.eou.screentalker.Fragments.Community"
+        android:label="communities"
+        tools:layout="@layout/community" />
+    <fragment
+        android:id="@+id/menuStream"
+        android:name="com.eou.screentalker.Fragments.Stream"
+        android:label="stream"
+        tools:layout="@layout/stream" />
+    <fragment
+        android:id="@+id/menuProfile"
+        android:name="com.eou.screentalker.Fragments.PersonalProfile"
+        android:label="PersonalProfile"
+        tools:layout="@layout/personal_profile"/>
+</navigation>

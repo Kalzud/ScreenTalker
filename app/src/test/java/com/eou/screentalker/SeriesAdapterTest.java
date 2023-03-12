@@ -2,6 +2,9 @@ package com.eou.screentalker;
 
 import static org.junit.Assert.assertEquals;
 
+import com.eou.screentalker.Adapters.SeriesAdapter;
+import com.eou.screentalker.Models.SeriesModel;
+
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;

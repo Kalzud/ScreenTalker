@@ -3,7 +3,8 @@ package com.eou.screentalker;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
-import android.content.Context;
+import com.eou.screentalker.Adapters.FeaturedAdapter;
+import com.eou.screentalker.Models.FeaturedModel;
 
 import org.junit.Test;
 

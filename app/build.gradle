@@ -34,15 +34,18 @@ android {
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.6.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.navigation:navigation-fragment:2.5.3'
     implementation 'androidx.navigation:navigation-ui:2.5.3'
     implementation 'com.google.firebase:firebase-database:20.1.0'
-    implementation 'androidx.annotation:annotation:1.5.0'
+    implementation 'androidx.annotation:annotation:1.6.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation 'com.google.firebase:firebase-auth:21.1.0'
+    implementation 'com.google.firebase:firebase-firestore:24.4.4'
+    implementation 'com.google.firebase:firebase-storage:20.1.0'
 
     /**
      * Github classes addition implementation
@@ -50,7 +53,7 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
     implementation 'com.github.bumptech.glide:glide:4.14.2'
     implementation 'com.github.smarteist:autoimageslider:1.3.9'
-    implementation 'com.google.android.exoplayer:exoplayer:2.18.2'
+    implementation 'com.google.android.exoplayer:exoplayer:2.18.4'
 
     /**
      * Testing Implementations that came with the application
@@ -69,4 +72,30 @@ dependencies {
 //    androidtestImplementation "org.mockito:mockito-core:1.10.19"
 //    androidtestImplementation "com.google.dexmaker:dexmaker:1.2"
 //    androidtestImplementation "com.google.dexmaker:dexmaker-mockito:1.2"
+
+    /**
+     * Material Design
+     */
+    implementation 'com.google.android.material:material:1.9.0-alpha02'
+
+    /**
+     * Rounded image view
+     */
+    implementation 'com.makeramen:roundedimageview:2.3.0'
+
+    /**
+     * For profile photo edit
+     */
+    implementation 'de.hdodenhof:circleimageview:3.0.0'
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
+    constraints {
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0") {
+            because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib")
+        }
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0") {
+            because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib")
+        }
+    }
+
 }
