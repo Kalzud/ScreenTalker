@@ -1,41 +1,35 @@
 package com.eou.screentalker.Activities;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.eou.screentalker.Fragments.Stream;
 import com.eou.screentalker.R;
+import com.eou.screentalker.Utilities.Constants;
+import com.eou.screentalker.Utilities.PreferenceManager;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 /**
  * Author: Emmanuel O. Uduma
@@ -50,7 +44,11 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton logoutBtn;
     private FirebaseFirestore fStore;
     private DocumentReference documentReference;
-    ListenerRegistration listenerRegistration;
+    private ListenerRegistration listenerRegistration;
+    private PreferenceManager preferenceManager;
+    private TextView nameTextView;
+    private RoundedImageView pImage;
+    private static final int EditprofileActivity_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +58,12 @@ public class MainActivity extends AppCompatActivity {
         mAuth=FirebaseAuth.getInstance();
         mUser=mAuth.getCurrentUser();
         fStore = FirebaseFirestore.getInstance();
+        preferenceManager = new PreferenceManager(MainActivity.this);
         userID = mAuth.getCurrentUser().getUid();
         documentReference = fStore.collection("users").document(userID);
+        getToken();
+
+
 
 //        initialise menu layout and action after click on menu bars
         final DrawerLayout drawerLayout = findViewById(R.id.drawLayout);
@@ -77,17 +79,11 @@ public class MainActivity extends AppCompatActivity {
 // Get a reference to the header view
         View headerView = navigationView.getHeaderView(0);
 // Get a reference to the TextView in the header view
-        TextView nameTextView = headerView.findViewById(R.id.displayName);
+        nameTextView = headerView.findViewById(R.id.displayName);
         // Get a reference to the ImageView in the header view
-        RoundedImageView pImage = headerView.findViewById(R.id.imageProfile);
+        pImage = headerView.findViewById(R.id.imageProfile);
 
-        //get database info
-        listenerRegistration = documentReference.addSnapshotListener((value, error) -> {
-//            assert value != null;
-            Picasso.get().load(Uri.parse(value.getString("pImage_url"))).into(pImage);
-            nameTextView.setText(value.getString("username"));
-        });
-        documentReference.get().addOnCompleteListener(task -> listenerRegistration.remove());
+       setUserHeadingDetails();
 
 //log out button
         logoutBtn = findViewById(R.id.logoutBtn);
@@ -95,14 +91,39 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private  void showToast(String message){
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
 
+    private  void getToken(){
+        FirebaseMessaging.getInstance().getToken().addOnSuccessListener(this::updateToken);
+    }
+
+    public void updateToken(String token){
+        documentReference.update(Constants.KEY_FCM_TOKEN, token).addOnSuccessListener(unused -> showToast("Token updated successfully"))
+                .addOnFailureListener(e -> showToast("Unable to update token"));
+    }
+     public void setUserHeadingDetails(){
+         nameTextView.setText(preferenceManager.getString(Constants.KEY_NAME));
+         System.out.println("Second check: " + preferenceManager.getString(Constants.KEY_NAME));
+         Picasso.get().load(Uri.parse(preferenceManager.getString(Constants.KEY_PROFILE_IMAGE))).into(pImage);
+         System.out.println("Third check: " + preferenceManager.getString(Constants.KEY_PROFILE_IMAGE));
+     }
 
 
     public void logOut(View v){
-        mAuth.signOut();
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish();
+        showToast("Logging out....");
+        HashMap<String, Object> update = new HashMap<>();
+        update.put(Constants.KEY_FCM_TOKEN, FieldValue.delete());
+        documentReference.update(update).addOnSuccessListener(unused -> {
+            preferenceManager.clear();
+            if(mAuth.getCurrentUser() != null){mAuth.signOut();}
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        }).addOnFailureListener(e -> showToast("unable to sign out"));
     }
+
+
 }

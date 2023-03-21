@@ -12,19 +12,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.eou.screentalker.R;
+import com.eou.screentalker.Utilities.Constants;
+import com.eou.screentalker.Utilities.PreferenceManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoginActivity extends AppCompatActivity {
-    TextView register;
-    TextView goToLogin;
-    EditText inputEmail, inputPassword;
-    Button btnLogin;
-    String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
-    ProgressDialog progressDialog;
+    private TextView register;
+    private TextView goToLogin;
+    private EditText inputEmail, inputPassword;
+    private Button btnLogin;
+    private String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+    private ProgressDialog progressDialog;
 
-    FirebaseAuth mAuth;
-    FirebaseUser mUser;
+    private FirebaseAuth mAuth;
+    private FirebaseUser mUser;
+    private PreferenceManager preferenceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +43,13 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(LoginActivity.this);
         mAuth=FirebaseAuth.getInstance();
         mUser=mAuth.getCurrentUser();
+        preferenceManager = new PreferenceManager(getApplicationContext());
+//        keeps user in once signed in
+        if (preferenceManager.getBoolean(Constants.KEY_IS_SIGNED_IN)){
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
         btnLogin.setOnClickListener(v->performAuth());
         register.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, RegisterActivity.class)));
@@ -64,7 +77,21 @@ public class LoginActivity extends AppCompatActivity {
             mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
                 if(task.isSuccessful()){
                     progressDialog.dismiss();
-                    sendToMain();
+                    FirebaseFirestore fStore = FirebaseFirestore.getInstance();
+                    fStore.collection("users").whereEqualTo(FieldPath.documentId(), mAuth.getCurrentUser().getUid()).get()
+                                    .addOnCompleteListener(getData_task -> {
+                                        if (getData_task.isSuccessful() && getData_task != null && getData_task.getResult().getDocuments().size()>0){
+                                            DocumentSnapshot documentSnapshot = getData_task.getResult().getDocuments().get(0);
+                                            preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
+                                            preferenceManager.putString(Constants.KEY_USER_ID, mAuth.getCurrentUser().getUid());
+                                            preferenceManager.putString(Constants.KEY_NAME, documentSnapshot.getString("username"));
+                                            preferenceManager.putString(Constants.KEY_BIO, documentSnapshot.getString("bio"));
+                                            preferenceManager.putString(Constants.KEY_PROFILE_IMAGE, documentSnapshot.getString("pImage_url"));
+                                            System.out.println("First check: " + documentSnapshot.getString("pImage_url"));
+                                            sendToMain();
+                                        }
+                                    });
+
                     Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
                 }
                 else{

@@ -1,20 +1,24 @@
 package com.eou.screentalker.Models;
 
-import java.util.List;
+import java.io.Serializable;
 
-public class CommunityModel {
+public class CommunityModel implements Serializable {
     //for community
     private String name;
-    private String group_pImage;
-    private List<UserModel> Members;
+    private String dp_url;
+    private String members;
+    private String id;
+    private boolean is_public;
 
     public CommunityModel() {
     }
 
-    public CommunityModel(String name, String group_pImage, List<UserModel> members) {
+    public CommunityModel(String name, String dp_url, String members, boolean is_public, String id) {
         this.name = name;
-        this.group_pImage = group_pImage;
-        Members = members;
+        this.dp_url = dp_url;
+        this.members = members;
+        this.is_public = is_public;
+        this.id = id;
     }
 
     public String getName() {
@@ -25,19 +29,35 @@ public class CommunityModel {
         this.name = name;
     }
 
-    public String getGroup_pImage() {
-        return group_pImage;
+    public String getDp_url() {
+        return dp_url;
     }
 
-    public void setGroup_pImage(String group_pImage) {
-        this.group_pImage = group_pImage;
+    public void setDp_url(String dp_url) {
+        this.dp_url = dp_url;
     }
 
-    public List<UserModel> getMembers() {
-        return Members;
+    public String getMembers() {
+        return members;
     }
 
-    public void setMembers(List<UserModel> members) {
-        Members = members;
+    public void setMembers(String members) {
+        this.members = members;
+    }
+
+    public boolean isIs_public() {
+        return is_public;
+    }
+
+    public void setIs_public(boolean is_public) {
+        this.is_public = is_public;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

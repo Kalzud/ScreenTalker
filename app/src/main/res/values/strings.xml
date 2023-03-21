@@ -41,4 +41,7 @@
     <string name="invites">Invites</string>
     <string name="bio_loading">Bio loading..........</string>
     <string name="username_loading">Username Loading......</string>
+    <string name="enter">Enter</string>
+    <string name="name">Name......</string>
+    <string name="type_a_message">Type a Message</string>
 </resources>

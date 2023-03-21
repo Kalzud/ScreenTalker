@@ -15,19 +15,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.eou.screentalker.Adapters.UsersAdapter;
 import com.eou.screentalker.Models.DataModel;
 import com.eou.screentalker.Adapters.FeaturedAdapter;
 import com.eou.screentalker.Models.FeaturedModel;
+import com.eou.screentalker.Models.UserModel;
 import com.eou.screentalker.R;
 import com.eou.screentalker.Adapters.SeriesAdapter;
 import com.eou.screentalker.Models.SeriesModel;
 import com.eou.screentalker.Adapters.SliderAdapter;
+import com.eou.screentalker.Utilities.Constants;
+import com.eou.screentalker.Utilities.PreferenceManager;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType;
 import com.smarteist.autoimageslider.SliderAnimations;
 import com.smarteist.autoimageslider.SliderView;
@@ -43,10 +51,10 @@ import java.util.Objects;
  * and would include code to enable various functions on the page
  *
  * A simple {@link Fragment} subclass.
- * Use the {@link Stream#newInstance} factory method to
+ * Use the  factory method to
  * create an instance of this fragment.
  */
-public class Stream extends Fragment {
+public class StreamFragment extends Fragment {
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference();
     private List<DataModel> dataModels;
@@ -57,31 +65,29 @@ public class Stream extends Fragment {
     private SeriesAdapter seriesAdapter;
     private RecyclerView featuredRecyclerView;
     private RecyclerView seriesRecyclerView;
+    private PreferenceManager preferenceManager;
+    private CollectionReference documentReference;
+    private FirebaseAuth mAuth;
+    private String userID;
+    private FirebaseFirestore fStore;
 
 
 
-    public Stream() {
+    public StreamFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FragmentMoviePage.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Stream newInstance(String param1, String param2) {
-        Stream fragment = new Stream();
-        return fragment;
-    }
+
 
     //would run first
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        preferenceManager = new PreferenceManager(requireActivity());
+        mAuth=FirebaseAuth.getInstance();
+        fStore = FirebaseFirestore.getInstance();
+        userID = mAuth.getCurrentUser().getUid();
+        documentReference = fStore.collection("users");
     }
 
     //would run second
@@ -89,7 +95,7 @@ public class Stream extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.stream, container, false);
+        return inflater.inflate(R.layout.fragment_stream, container, false);
     }
 
 
@@ -167,6 +173,7 @@ public class Stream extends Fragment {
         featuredAdapter = new FeaturedAdapter(featuredModels);
         featuredRecyclerView.setAdapter(featuredAdapter);
 
+
         Fref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -218,6 +225,27 @@ public class Stream extends Fragment {
         });
 
     }
+
+//    public void getUsers(){
+//        documentReference.get().addOnCompleteListener(querySnapshotTask -> {
+//            String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
+//            if (querySnapshotTask.isSuccessful() && querySnapshotTask.getResult() != null) {
+//                List<UserModel> users = new ArrayList<>();
+//                for (QueryDocumentSnapshot queryDocumentSnapshot : querySnapshotTask.getResult()) {
+//                    if (currentUserId.equals(queryDocumentSnapshot.getId())) {
+//                        continue;
+//                    }
+//                    UserModel user = new UserModel();
+//                    user.setUsername(queryDocumentSnapshot.getString(Constants.KEY_NAME));
+//                    user.setpImage_url(queryDocumentSnapshot.getString(Constants.KEY_PROFILE_IMAGE));
+//                    user.setFcmToken(queryDocumentSnapshot.getString(Constants.KEY_FCM_TOKEN));
+//                    user.setEmail(queryDocumentSnapshot.getString(Constants.KEY_EMAIL));
+//                    user.setId(queryDocumentSnapshot.getId());
+//                    users.add(user);
+//                }
+//            }
+//        });
+//    }
 
 
 }

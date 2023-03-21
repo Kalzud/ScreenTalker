@@ -1,25 +1,31 @@
 package com.eou.screentalker.Models;
 
-public class UserModel {
+import java.io.Serializable;
+
+public class UserModel implements Serializable {
     //for users
-    private String username;
+   private String username;
     private String email;
     private String password;
     private String pImage_url;
     private String bio;
     private String dob;
+    private String fcmToken;
+    private String id;
 
     public UserModel(){
         //default constructor
     }
 
-    public UserModel(String username, String email, String password, String pImage_url, String bio, String dob) {
+    public UserModel(String username, String email, String password, String pImage_url, String bio, String dob, String fcmToken, String id) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.pImage_url = pImage_url;
         this.bio = bio;
         this.dob = dob;
+        this.fcmToken = fcmToken;
+        this.id = id;
     }
 
     //getters ans setters
@@ -70,5 +76,21 @@ public class UserModel {
 
     public void setDob(String dob) {
         this.dob = dob;
+    }
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

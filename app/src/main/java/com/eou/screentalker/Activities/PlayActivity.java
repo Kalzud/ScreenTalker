@@ -19,42 +19,48 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.eou.screentalker.Adapters.CommentAdapter;
+import com.eou.screentalker.Adapters.Group_chatAdapter;
+import com.eou.screentalker.Models.CommentModel;
+import com.eou.screentalker.Models.Group_chat_messageModel;
 import com.eou.screentalker.R;
-import com.google.android.exoplayer2.DefaultRenderersFactory;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.ui.StyledPlayerView;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.util.Util;
+import com.eou.screentalker.Utilities.Constants;
+import com.eou.screentalker.Utilities.PreferenceManager;
+import com.eou.screentalker.databinding.ActivityGroupchatBinding;
+import com.eou.screentalker.databinding.ActivityPlayBinding;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
 
 public class PlayActivity extends AppCompatActivity {
 
     private String VIDEO_URL;
     ProgressDialog progressDialog;
+    private ActivityPlayBinding binding;
+    String VIDEO_TITLE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_play);
-//        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        binding =  ActivityPlayBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         progressDialog = new ProgressDialog(PlayActivity.this);
 
+
         VIDEO_URL = getIntent().getStringExtra("vid");
-        String VIDEO_TITLE = getIntent().getStringExtra("title");
+        VIDEO_TITLE = getIntent().getStringExtra("title");
         System.out.println("got here");
         System.out.println(VIDEO_URL);
         System.out.println(VIDEO_TITLE);
@@ -83,6 +89,7 @@ public class PlayActivity extends AppCompatActivity {
         mediaController.setAnchorView(videoView);
         videoView.setMediaController(mediaController);
         videoView.start();
+//        mediaController.set
         videoView.setOnPreparedListener(mp -> progressDialog.dismiss());
     }
 
@@ -94,4 +101,6 @@ public class PlayActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 }

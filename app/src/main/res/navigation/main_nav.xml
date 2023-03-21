@@ -7,17 +7,27 @@
 
     <fragment
         android:id="@+id/menuCommunities"
-        android:name="com.eou.screentalker.Fragments.Community"
+        android:name="com.eou.screentalker.Fragments.CommunityFragment"
         android:label="communities"
-        tools:layout="@layout/community" />
+        tools:layout="@layout/fragment_community" />
     <fragment
         android:id="@+id/menuStream"
-        android:name="com.eou.screentalker.Fragments.Stream"
+        android:name="com.eou.screentalker.Fragments.StreamFragment"
         android:label="stream"
-        tools:layout="@layout/stream" />
+        tools:layout="@layout/fragment_stream" />
     <fragment
         android:id="@+id/menuProfile"
-        android:name="com.eou.screentalker.Fragments.PersonalProfile"
+        android:name="com.eou.screentalker.Fragments.Personal_profileFragment"
         android:label="PersonalProfile"
-        tools:layout="@layout/personal_profile"/>
+        tools:layout="@layout/fragment_personal_profile"/>
+<!--    <activity-->
+<!--        android:id="@+id/menuMessage"-->
+<!--        android:name="com.eou.screentalker.Activities.UsersActivity"-->
+<!--        android:label="activity_users"-->
+<!--        tools:layout="@layout/activity_users" />-->
+    <fragment
+        android:id="@+id/menuMessage"
+        android:name="com.eou.screentalker.Fragments.MessagesFragment"
+        android:label="fragment_messages"
+        tools:layout="@layout/fragment_messages" />
 </navigation>

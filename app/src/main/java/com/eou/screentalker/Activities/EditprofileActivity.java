@@ -2,16 +2,12 @@ package com.eou.screentalker.Activities;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -23,13 +19,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.eou.screentalker.Fragments.PersonalProfile;
 import com.eou.screentalker.R;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.eou.screentalker.Utilities.Constants;
+import com.eou.screentalker.Utilities.PreferenceManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -40,8 +34,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.StorageTask;
-import com.google.firebase.storage.UploadTask;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Picasso;
 
@@ -76,11 +68,20 @@ public class EditprofileActivity extends AppCompatActivity {
     private String user_bio = "";
     private String user_dob = "";
 
+    private PreferenceManager preferenceManager;
+    private OnRefreshListener mListener;
+
+
+    public  interface  OnRefreshListener{
+        void onRefresh();
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editprofile);
+        preferenceManager = new PreferenceManager(EditprofileActivity.this);
         //initialising database fields
         storageReference = FirebaseStorage.getInstance().getReference();
         mAuth=FirebaseAuth.getInstance();
@@ -130,7 +131,12 @@ public class EditprofileActivity extends AppCompatActivity {
 
         //functions for buttons on xml
         //get picture from gallery
-        btnChange_pic.setOnClickListener(this::openSomeActivityForResult);
+        btnChange_pic.setOnClickListener(v -> {
+            openSomeActivityForResult(v);
+            if(mListener != null){
+                mListener.onRefresh();
+            }
+        });
         btnChange_username.setOnClickListener(v -> {
             if(inputNew_username != null)
             updateUsername();
@@ -189,40 +195,35 @@ public class EditprofileActivity extends AppCompatActivity {
     }
 
     public void updateProfile_pic(Uri uri){
+        preferenceManager.putString(Constants.KEY_PROFILE_IMAGE, String.valueOf(uri));
         Map<String, Object> user = new HashMap<>();
-        user.put("username", user_username);
-        user.put("email", user_email);
-        user.put("dob", user_dob);
-        user.put("bio", user_bio);
-        //this is different cause it is the one we are updating
         user.put("pImage_url", uri);
-        documentReference.set(user).addOnSuccessListener(v-> Log.d(TAG, "onsuccess: picture updated for" + userID));
+        documentReference.update(user).addOnSuccessListener(v-> Log.d(TAG, "onsuccess: picture updated for" + userID));
     }
     public void updateUsername(){
         String new_username = inputNew_username.getText().toString();
+        preferenceManager.putString(Constants.KEY_NAME, new_username);
+        System.out.println(Constants.KEY_NAME);
         Map<String, Object> user = new HashMap<>();
         user.put("username", new_username);
-        user.put("email", user_email);
-        user.put("dob", user_dob);
-        user.put("bio", user_bio);
-        user.put("pImage_url",user_pImage_url);
-        documentReference.set(user).addOnSuccessListener(v-> {
+        documentReference.update(user).addOnSuccessListener(v-> {
             Log.d(TAG, "onsuccess: username updated for" + userID);
             Toast.makeText(EditprofileActivity.this, "Username updated", Toast.LENGTH_SHORT).show();
         });
-
     }
     public void updateBio(){
         String new_bio = inputNew_bio.getText().toString();
+        preferenceManager.putString(Constants.KEY_BIO, new_bio);
+        System.out.println(Constants.KEY_BIO);
         Map<String, Object> user = new HashMap<>();
-        user.put("username", user_username);
-        user.put("email", user_email);
-        user.put("dob", user_dob);
         user.put("bio", new_bio);
-        user.put("pImage_url",user_pImage_url);
-        documentReference.set(user).addOnSuccessListener(v-> {
+        documentReference.update(user).addOnSuccessListener(v-> {
             Log.d(TAG, "onsuccess: bio updated for" + userID);
             Toast.makeText(EditprofileActivity.this, "Bio updated", Toast.LENGTH_SHORT).show();
         });
+    }
+
+    public void setOnRefreshListener(OnRefreshListener listener){
+        mListener = listener;
     }
 }

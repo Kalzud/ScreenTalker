@@ -16,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.eou.screentalker.R;
+import com.eou.screentalker.Utilities.Constants;
+import com.eou.screentalker.Utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -32,15 +34,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
-    TextView goToLogin;
-    EditText inputEmail, inputPassword, inputConfirmPassword, inputUserName, inputDOB;
-    Button btnRegister;
-    String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
-    ProgressDialog progressDialog;
+    private TextView goToLogin;
+    private EditText inputEmail, inputPassword, inputConfirmPassword, inputUserName, inputDOB;
+    private Button btnRegister;
+    private String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+    private ProgressDialog progressDialog;
 
-    FirebaseAuth mAuth;
-    FirebaseUser mUser;
-    FirebaseFirestore fStore;
+    private FirebaseAuth mAuth;
+    private FirebaseUser mUser;
+    private FirebaseFirestore fStore;
+    private PreferenceManager preferenceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +61,8 @@ public class RegisterActivity extends AppCompatActivity {
         //when you want to use this remove it from her and initialise in method you want to use it in cause mUser returns null here
         mUser=mAuth.getCurrentUser();
         fStore = FirebaseFirestore.getInstance();
+        preferenceManager = new PreferenceManager(getApplicationContext());
+
 
         goToLogin.setOnClickListener(v -> startActivity(new Intent(RegisterActivity.this, LoginActivity.class)));
         btnRegister.setOnClickListener(v->performAuth());
@@ -115,7 +120,14 @@ public class RegisterActivity extends AppCompatActivity {
                     user.put("bio", bio);
                     user.put("pImage_url", pImage_url);
                     //inserting into firestore
-                    documentReference.set(user).addOnSuccessListener(v-> Log.d(TAG, "onsuccess: user profile is created for" + userID));
+                    documentReference.set(user).addOnSuccessListener(v -> {
+                        Log.d(TAG, "onsuccess: user profile is created for" + userID);
+                        preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
+                        preferenceManager.putString(Constants.KEY_USER_ID, userID);
+                        preferenceManager.putString(Constants.KEY_NAME, username);
+                        preferenceManager.putString(Constants.KEY_BIO, bio);
+                        preferenceManager.putString(Constants.KEY_PROFILE_IMAGE, pImage_url);
+                    });
                     Toast.makeText(RegisterActivity.this, "Registration Successful", Toast.LENGTH_SHORT).show();
                 }
                 else{
