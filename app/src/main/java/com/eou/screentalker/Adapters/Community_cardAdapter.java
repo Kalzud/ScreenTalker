@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.eou.screentalker.Listeners.CommunityListener;
 import com.eou.screentalker.Models.CommunityModel;
+import com.eou.screentalker.Models.RequestModel;
 import com.eou.screentalker.databinding.CommunityCardBinding;
 import com.squareup.picasso.Picasso;
 
@@ -56,5 +57,6 @@ public class Community_cardAdapter extends RecyclerView.Adapter<Community_cardAd
             Picasso.get().load(Uri.parse(community.getDp_url())).into(binding.groupDp);
             binding.getRoot().setOnClickListener(v-> communityListener.onCommunityClicked(community));
         }
+
     }
 }

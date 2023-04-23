@@ -3,6 +3,8 @@ package com.eou.screentalker.Activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -21,6 +24,7 @@ import android.widget.VideoView;
 
 import com.eou.screentalker.Adapters.CommentAdapter;
 import com.eou.screentalker.Adapters.Group_chatAdapter;
+import com.eou.screentalker.Fragments.CommentFragment;
 import com.eou.screentalker.Models.CommentModel;
 import com.eou.screentalker.Models.Group_chat_messageModel;
 import com.eou.screentalker.R;
@@ -48,19 +52,34 @@ public class PlayActivity extends AppCompatActivity {
     ProgressDialog progressDialog;
     private ActivityPlayBinding binding;
     String VIDEO_TITLE;
+    private PreferenceManager preferenceManager;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding =  ActivityPlayBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        preferenceManager = new PreferenceManager(this);
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        FrameLayout commentContainer = findViewById(R.id.comment_container);
+        CommentFragment commentFragment = new CommentFragment();
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(commentContainer.getId(), commentFragment);
+        transaction.commit();
+
+
+//        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         progressDialog = new ProgressDialog(PlayActivity.this);
 
 
         VIDEO_URL = getIntent().getStringExtra("vid");
         VIDEO_TITLE = getIntent().getStringExtra("title");
+        commentFragment.title = VIDEO_TITLE;
+        preferenceManager.putString(Constants.KEY_TITLE, VIDEO_TITLE);
         System.out.println("got here");
         System.out.println(VIDEO_URL);
         System.out.println(VIDEO_TITLE);
