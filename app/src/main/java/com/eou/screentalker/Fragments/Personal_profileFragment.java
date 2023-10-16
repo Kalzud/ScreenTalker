@@ -16,7 +16,10 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.eou.screentalker.Activities.EditprofileActivity;
+import com.eou.screentalker.Activities.PostActivity;
+import com.eou.screentalker.Adapters.PostAdapter;
 import com.eou.screentalker.Adapters.RequestAdapter;
+import com.eou.screentalker.Models.PostModel;
 import com.eou.screentalker.Models.RequestModel;
 import com.eou.screentalker.Utilities.Constants;
 import com.eou.screentalker.Utilities.PreferenceManager;
@@ -39,6 +42,7 @@ public class Personal_profileFragment extends Fragment {
     private PreferenceManager preferenceManager;
     private FirebaseFirestore fStore;
     private CollectionReference requestReference;
+    private CollectionReference postReference;
     private Context context;
 
 
@@ -54,6 +58,7 @@ public class Personal_profileFragment extends Fragment {
         preferenceManager = new PreferenceManager(requireActivity());
         fStore = FirebaseFirestore.getInstance();
         requestReference = fStore.collection("requests");
+        postReference = fStore.collection("posts");
     }
 
     @Override
@@ -69,8 +74,13 @@ public class Personal_profileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         loadUserDetails();
         getInvities();
+        getPosts();
         binding.editProfile.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), EditprofileActivity.class);
+            startActivity(intent);
+        });
+        binding.posts.setOnClickListener(v->{
+            Intent intent = new Intent(v.getContext(), PostActivity.class);
             startActivity(intent);
         });
 
@@ -80,6 +90,8 @@ public class Personal_profileFragment extends Fragment {
     public void onResume() {
         super.onResume();
         loadUserDetails();
+        getInvities();
+        getPosts();
     }
 
     private void loadUserDetails(){
@@ -104,6 +116,7 @@ public class Personal_profileFragment extends Fragment {
 //                    System.out.println(queryDocumentSnapshot.getString("Dp_url"));
                             request.sender_pImage = queryDocumentSnapshot.getString("sender_pImage");
                             request.sender_username = queryDocumentSnapshot.getString("sender_username");
+                            request.id = queryDocumentSnapshot.getId();
                             requests.add(request);
                         }
                         if(requests.size() > 0){
@@ -125,5 +138,41 @@ public class Personal_profileFragment extends Fragment {
 
     public void showErrorMessage(){
         Toast.makeText(requireContext(), "No users available", Toast.LENGTH_SHORT).show();
+    }
+
+    public void getPosts(){
+        String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
+        postReference
+                .whereEqualTo("id", currentUserId)
+                .get().addOnCompleteListener(querySnapshotTask -> {
+                    if (querySnapshotTask.isSuccessful() && querySnapshotTask.getResult() != null) {
+                        List<PostModel> posts = new ArrayList<>();
+                        for (QueryDocumentSnapshot queryDocumentSnapshot : querySnapshotTask.getResult()) {
+//                            if (currentUserId.equals(queryDocumentSnapshot.getId())) {
+//                                continue;
+//                            }
+                            PostModel post = new PostModel();
+                            post.id = queryDocumentSnapshot.getString("id");
+//                    System.out.println(queryDocumentSnapshot.getString("name"));
+                            post.post = queryDocumentSnapshot.getString("post");
+//                    System.out.println(queryDocumentSnapshot.getString("Dp_url"));
+                            post.tag = queryDocumentSnapshot.getString("tag");
+                            posts.add(post);
+                        }
+                        if(posts.size() > 0){
+                            PostAdapter postAdapter = new PostAdapter(posts);
+                            GridLayoutManager layoutManager = new GridLayoutManager(requireActivity(), 2, GridLayoutManager.VERTICAL, false);
+                            //to reverse layout cause I want to display from the first position so I need the reverse of 3 2 1 0
+                            layoutManager.setReverseLayout(true);
+                            binding.postRecyclerView.setLayoutManager(layoutManager);
+                            binding.postRecyclerView.setAdapter(postAdapter);
+                            binding.postRecyclerView.setVisibility(View.VISIBLE);
+                        }else{
+                            showErrorMessage();
+                        }
+                    }else{
+                        showErrorMessage();
+                    }
+                });
     }
 }

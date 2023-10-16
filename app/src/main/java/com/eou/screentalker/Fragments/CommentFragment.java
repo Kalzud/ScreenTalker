@@ -135,6 +135,7 @@ public class CommentFragment extends Fragment {
                         comment.image= documentChange.getDocument().getString("pImage");
                         comment.dateTime = getReadableDataTime(documentChange.getDocument().getDate("timestamp"));
                         comment.dateObject = documentChange.getDocument().getDate("timestamp");
+                        comment.senderID = documentChange.getDocument().getString("senderID");
 //                        title = documentChange.getDocument().getString("title");
                         comments.add(comment);
                     }
