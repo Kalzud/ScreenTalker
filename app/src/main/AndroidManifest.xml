@@ -17,6 +17,24 @@
         android:theme="@style/Theme.ScreenTalker"
         tools:targetApi="31">
         <activity
+            android:name=".CreateCommunityActivity"
+            android:exported="false"
+            android:label="@string/title_activity_create_community"
+            android:theme="@style/Theme.ScreenTalker.NoActionBar">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".CreateComunityActivity"
+            android:exported="false"
+            android:label="@string/title_activity_create_comunity"
+            android:theme="@style/Theme.ScreenTalker.NoActionBar">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".Activities.Video_callActivity"
             android:exported="false">
             <meta-data
