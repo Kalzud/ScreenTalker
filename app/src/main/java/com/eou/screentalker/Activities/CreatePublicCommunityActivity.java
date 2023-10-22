@@ -12,6 +12,13 @@ public class CreatePublicCommunityActivity extends AppCompatActivity {
     private PreferenceManager preferenceManager;
     private FirebaseFirestore fStore;
 
+    //user details for updates
+    private String user_username = "";
+    private String user_email = "";
+    private String user_pImage_url = "";
+    private String user_bio = "";
+    private String user_dob = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
