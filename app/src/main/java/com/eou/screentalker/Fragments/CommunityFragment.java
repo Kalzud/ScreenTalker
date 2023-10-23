@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.eou.screentalker.Activities.ChatActivity;
+import com.eou.screentalker.Activities.CreatePublicCommunityActivity;
+import com.eou.screentalker.Activities.EditprofileActivity;
 import com.eou.screentalker.Activities.GroupchatActivity;
 import com.eou.screentalker.Adapters.Community_cardAdapter;
 import com.eou.screentalker.Listeners.CommunityListener;
@@ -74,7 +76,17 @@ public class CommunityFragment extends Fragment implements CommunityListener {
         super.onViewCreated(view, savedInstanceState);
 //        public_communityRecyclerView = view.findViewById(R.id.public_communityRecyclerView);
         getPublicCommunities();
+        binding.btnPublic.setOnClickListener(v-> {
+            Intent intent = new Intent(v.getContext(), CreatePublicCommunityActivity.class);
+            startActivity(intent);
+        });
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPublicCommunities();
     }
 
     public void getPublicCommunities(){
