@@ -1,5 +1,6 @@
 package com.eou.screentalker.Adapters;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.eou.screentalker.Activities.ProfileActivity;
 import com.eou.screentalker.Models.Chat_messageModel;
 import com.eou.screentalker.databinding.ItemContainerReceivedMessageBinding;
 import com.eou.screentalker.databinding.ItemContainerSentMessageBinding;
@@ -98,6 +100,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             binding.textMessage.setText(chatMessage.message);
             binding.date.setText(chatMessage.dateTime);
             Picasso.get().load(Uri.parse(pImage_url)).into(binding.pImage);
+            binding.pImage.setOnClickListener(v ->{
+                Intent intent = new Intent(v.getContext(), ProfileActivity.class);
+                intent.putExtra("id", chatMessage.senderID);
+                itemView.getContext().startActivity(intent);
+            });
         }
     }
 }

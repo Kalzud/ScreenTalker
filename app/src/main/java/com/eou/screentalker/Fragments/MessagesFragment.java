@@ -13,11 +13,8 @@ import android.view.ViewGroup;
 
 import com.eou.screentalker.Activities.ChatActivity;
 import com.eou.screentalker.Adapters.FriendsAdapter;
-import com.eou.screentalker.Adapters.UsersAdapter;
 import com.eou.screentalker.Listeners.FriendListener;
-import com.eou.screentalker.Listeners.UserListener;
 import com.eou.screentalker.Models.FriendModel;
-import com.eou.screentalker.Models.UserModel;
 import com.eou.screentalker.Utilities.Constants;
 import com.eou.screentalker.Utilities.PreferenceManager;
 import com.eou.screentalker.databinding.FragmentMessagesBinding;
@@ -32,7 +29,7 @@ import java.util.List;
 public class MessagesFragment extends Fragment implements FriendListener {
     private FragmentMessagesBinding binding;
     private PreferenceManager preferenceManager;
-    private CollectionReference documentReference;
+    private CollectionReference collectionReference;
     private FirebaseAuth mAuth;
     private String userID;
     private FirebaseFirestore fStore;
@@ -50,7 +47,7 @@ public class MessagesFragment extends Fragment implements FriendListener {
         mAuth=FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
         userID = mAuth.getCurrentUser().getUid();
-        documentReference = fStore.collection("friends");
+        collectionReference = fStore.collection("friends");
     }
 
     @Override
@@ -75,7 +72,7 @@ public class MessagesFragment extends Fragment implements FriendListener {
 
     public void getUsers(){
         loading(true);
-        documentReference.get().addOnCompleteListener(querySnapshotTask -> {
+        collectionReference.get().addOnCompleteListener(querySnapshotTask -> {
             loading(false);
             String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
             if (querySnapshotTask.isSuccessful() && querySnapshotTask.getResult() != null) {
