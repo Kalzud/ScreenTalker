@@ -19,6 +19,7 @@ import com.eou.screentalker.Activities.EditprofileActivity;
 import com.eou.screentalker.Activities.PostActivity;
 import com.eou.screentalker.Adapters.PostAdapter;
 import com.eou.screentalker.Adapters.RequestAdapter;
+import com.eou.screentalker.Listeners.RequestActionListener;
 import com.eou.screentalker.Models.PostModel;
 import com.eou.screentalker.Models.RequestModel;
 import com.eou.screentalker.Utilities.Constants;
@@ -37,7 +38,7 @@ import java.util.List;
  * Use the  factory method to
  * create an instance of this fragment.
  */
-public class Personal_profileFragment extends Fragment {
+public class Personal_profileFragment extends Fragment{
     private FragmentPersonalProfileBinding binding;
     private PreferenceManager preferenceManager;
     private FirebaseFirestore fStore;
@@ -73,7 +74,7 @@ public class Personal_profileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         loadUserDetails();
-        getInvities();
+        getInvites();
         getPosts();
         binding.editProfile.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), EditprofileActivity.class);
@@ -90,7 +91,7 @@ public class Personal_profileFragment extends Fragment {
     public void onResume() {
         super.onResume();
         loadUserDetails();
-        getInvities();
+        getInvites();
         getPosts();
     }
 
@@ -101,7 +102,8 @@ public class Personal_profileFragment extends Fragment {
         System.out.println("Fourth check: " + preferenceManager.getString(Constants.KEY_PROFILE_IMAGE));
     }
 
-    public void getInvities(){
+//
+    public void getInvites(){
         requestReference
                 .whereEqualTo("receiver_id", preferenceManager.getString(Constants.KEY_USER_ID))
                 .get().addOnCompleteListener(querySnapshotTask -> {
@@ -121,6 +123,7 @@ public class Personal_profileFragment extends Fragment {
                         }
                         if(requests.size() > 0){
                             RequestAdapter requestAdapter = new RequestAdapter(requests, context);
+
                             GridLayoutManager layoutManager = new GridLayoutManager(requireActivity(), 1, GridLayoutManager.HORIZONTAL, false);
                             //to reverse layout cause I want to display from the first position so I need the reverse of 3 2 1 0
                             layoutManager.setReverseLayout(true);
@@ -175,4 +178,5 @@ public class Personal_profileFragment extends Fragment {
                     }
                 });
     }
+
 }

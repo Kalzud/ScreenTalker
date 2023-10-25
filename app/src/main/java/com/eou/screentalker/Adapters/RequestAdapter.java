@@ -1,6 +1,7 @@
 package com.eou.screentalker.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.eou.screentalker.Activities.ProfileActivity;
+import com.eou.screentalker.Listeners.RequestActionListener;
 import com.eou.screentalker.Models.CommunityModel;
 import com.eou.screentalker.Models.RequestModel;
 import com.eou.screentalker.R;
@@ -28,6 +31,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
     private FirebaseFirestore fStore;
     private PreferenceManager preferenceManager;
     private Context context;
+    private RequestActionListener requestActionListener;
 
     public RequestAdapter(List<RequestModel> requestModels, Context context) {
         this. requestModels =  requestModels;
@@ -65,6 +69,11 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
             Picasso.get().load(Uri.parse(request.sender_pImage)).into(binding.dp);
             binding.accept.setOnClickListener(v-> add(request));
             binding.reject.setOnClickListener(v-> remove(request));
+            binding.dp.setOnClickListener(v ->{
+                Intent intent = new Intent(v.getContext(), ProfileActivity.class);
+                intent.putExtra("id", request.sender_id);
+                itemView.getContext().startActivity(intent);
+            });
         }
 
         private  void add(RequestModel request){
@@ -79,6 +88,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
             fStore.collection("friends").add(friend);
             fStore.collection("requests").document(request.id).delete();
             binding.accept.setVisibility(View.GONE);
+            binding.reject.setVisibility(View.GONE);
         }
 
         private void remove(RequestModel request){
@@ -87,45 +97,4 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
             binding.reject.setVisibility(View.GONE);
         }
     }
-
-
-
-//    // Set the click listener for the reload button
-//        reloadButton.setOnClickListener(new View.OnClickListener() {
-//        @Override
-//        public void onClick(View view) {
-//            // Create a new instance of the fragment
-//            MyFragment newFragment = new MyFragment();
-//
-//            // Get the fragment manager
-//            FragmentManager fragmentManager = getFragmentManager();
-//
-//            // Start a new fragment transaction
-//            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//
-//            // Replace the existing fragment with the new instance
-//            fragmentTransaction.replace(R.id.fragment_container, newFragment);
-//
-//            // Commit the transaction
-//            fragmentTransaction.commit();
-//        }
-//    });
-
-//    // Initialize Firestore instance
-//    Firestore firestore = FirestoreClient.getFirestore();
-//
-//    // Specify the document reference
-//    DocumentReference docRef = firestore.collection("myCollection").document("myDocument");
-//
-//    // Update the document
-//    ApiFuture<WriteResult> future = docRef.update("myField", FieldValue.delete());
-//
-//// Wait for the update to complete
-//try {
-//        future.get();
-//        System.out.println("Field successfully deleted.");
-//    } catch (InterruptedException | ExecutionException e) {
-//        System.out.println("Error deleting field: " + e.getMessage());
-//    }
-
 }

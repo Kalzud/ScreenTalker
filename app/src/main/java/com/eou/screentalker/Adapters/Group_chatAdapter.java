@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.eou.screentalker.Activities.ProfileActivity;
-import com.eou.screentalker.Fragments.ProfileFragment;
 import com.eou.screentalker.Models.Group_chat_messageModel;
 import com.eou.screentalker.databinding.ContainerGroupReceivedMessageBinding;
 import com.eou.screentalker.databinding.ContainerGroupSentMessageBinding;
