@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/purple_900"
     android:id="@+id/container"
-    tools:context=".Activities.PostActivity">
+    tools:context=".Activities.CreatePublicCommunityActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
@@ -47,7 +47,7 @@
                 android:id="@+id/community_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/post_img"
+                android:layout_below="@+id/community_img"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
                 android:text="Click button to add Dp picture"

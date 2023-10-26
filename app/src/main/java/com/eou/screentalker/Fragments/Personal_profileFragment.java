@@ -127,9 +127,9 @@ public class Personal_profileFragment extends Fragment{
                             GridLayoutManager layoutManager = new GridLayoutManager(requireActivity(), 1, GridLayoutManager.HORIZONTAL, false);
                             //to reverse layout cause I want to display from the first position so I need the reverse of 3 2 1 0
                             layoutManager.setReverseLayout(true);
-                            binding.recyclerView.setLayoutManager(layoutManager);
-                            binding.recyclerView.setAdapter(requestAdapter);
-                            binding.recyclerView.setVisibility(View.VISIBLE);
+                            binding.inviteRecyclerView.setLayoutManager(layoutManager);
+                            binding.inviteRecyclerView.setAdapter(requestAdapter);
+                            binding.inviteRecyclerView.setVisibility(View.VISIBLE);
                         }else{
                             showErrorMessage();
                         }

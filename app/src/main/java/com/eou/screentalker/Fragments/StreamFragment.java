@@ -15,16 +15,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.eou.screentalker.Adapters.UsersAdapter;
 import com.eou.screentalker.Models.DataModel;
 import com.eou.screentalker.Adapters.FeaturedAdapter;
 import com.eou.screentalker.Models.FeaturedModel;
-import com.eou.screentalker.Models.UserModel;
 import com.eou.screentalker.R;
 import com.eou.screentalker.Adapters.SeriesAdapter;
 import com.eou.screentalker.Models.SeriesModel;
 import com.eou.screentalker.Adapters.SliderAdapter;
-import com.eou.screentalker.Utilities.Constants;
 import com.eou.screentalker.Utilities.PreferenceManager;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,7 +32,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType;
 import com.smarteist.autoimageslider.SliderAnimations;
 import com.smarteist.autoimageslider.SliderView;
@@ -131,7 +127,7 @@ public class StreamFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        featuredRecyclerView = view.findViewById(R.id.recyclerView);
+        featuredRecyclerView = view.findViewById(R.id.privateRecyclerView);
         seriesRecyclerView = view.findViewById(R.id.seriesRecyclerView);
 
 

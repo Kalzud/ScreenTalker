@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.eou.screentalker.Activities.ChatActivity;
+import com.eou.screentalker.Activities.CreatePrivateCommunityActivity;
 import com.eou.screentalker.Activities.CreatePublicCommunityActivity;
 import com.eou.screentalker.Activities.EditprofileActivity;
 import com.eou.screentalker.Activities.GroupchatActivity;
@@ -24,6 +25,7 @@ import com.eou.screentalker.Models.CommunityModel;
 import com.eou.screentalker.Models.UserModel;
 import com.eou.screentalker.Utilities.Constants;
 import com.eou.screentalker.Utilities.PreferenceManager;
+import com.eou.screentalker.databinding.ActivityCreatePrivateCommunityBinding;
 import com.eou.screentalker.databinding.FragmentCommunityBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -76,8 +78,13 @@ public class CommunityFragment extends Fragment implements CommunityListener {
         super.onViewCreated(view, savedInstanceState);
 //        public_communityRecyclerView = view.findViewById(R.id.public_communityRecyclerView);
         getPublicCommunities();
+        getPrivateCommunities();
         binding.btnPublic.setOnClickListener(v-> {
             Intent intent = new Intent(v.getContext(), CreatePublicCommunityActivity.class);
+            startActivity(intent);
+        });
+        binding.btnPrivate.setOnClickListener(v-> {
+            Intent intent = new Intent(v.getContext(), CreatePrivateCommunityActivity.class);
             startActivity(intent);
         });
 
@@ -125,6 +132,44 @@ public class CommunityFragment extends Fragment implements CommunityListener {
                 showErrorMessage();
             }
         });
+    }
+
+    public void getPrivateCommunities(){
+        communityReference
+                .whereEqualTo("is_public", false)
+                .get().addOnCompleteListener(querySnapshotTask -> {
+                    String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
+                    if (querySnapshotTask.isSuccessful() && querySnapshotTask.getResult() != null) {
+                        List<CommunityModel> communitys = new ArrayList<>();
+                        for (QueryDocumentSnapshot queryDocumentSnapshot : querySnapshotTask.getResult()) {
+                            if (currentUserId.equals(queryDocumentSnapshot.getId())) {
+                                continue;
+                            }
+                            CommunityModel community = new CommunityModel();
+                            community.setName(queryDocumentSnapshot.getString("name"));
+//                    System.out.println(queryDocumentSnapshot.getString("name"));
+                            community.setDp_url(queryDocumentSnapshot.getString("dp_url"));
+//                    System.out.println(queryDocumentSnapshot.getString("Dp_url"));
+                            community.setMembers(queryDocumentSnapshot.getString("members"));
+                            community.setIs_public(Boolean.FALSE.equals(queryDocumentSnapshot.getBoolean("is_public")));
+                            community.setId(queryDocumentSnapshot.getId());
+                            communitys.add(community);
+                        }
+                        if(communitys.size() > 0){
+                            Community_cardAdapter community_cardAdapter = new Community_cardAdapter(communitys, this);
+                            GridLayoutManager layoutManager = new GridLayoutManager(requireActivity(), 1, GridLayoutManager.HORIZONTAL, false);
+                            //to reverse layout cause I want to display from the first position so I need the reverse of 3 2 1 0
+                            layoutManager.setReverseLayout(true);
+                            binding.privateRecyclerView.setLayoutManager(layoutManager);
+                            binding.privateRecyclerView.setAdapter(community_cardAdapter);
+                            binding.privateRecyclerView.setVisibility(View.VISIBLE);
+                        }else{
+                            showErrorMessage();
+                        }
+                    }else{
+                        showErrorMessage();
+                    }
+                });
     }
 
     public void showErrorMessage(){

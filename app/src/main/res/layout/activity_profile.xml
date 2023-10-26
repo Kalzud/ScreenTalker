@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".Fragments.StreamFragment"
+    tools:context=".Activities.ProfileActivity"
     android:background="@color/purple_900"
     android:layout_height="match_parent">
 

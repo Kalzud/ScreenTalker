@@ -25,12 +25,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+
 import com.eou.screentalker.databinding.ActivityCreatePublicCommunityBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.makeramen.roundedimageview.RoundedImageView;
@@ -110,14 +112,14 @@ public class CreatePublicCommunityActivity extends AppCompatActivity {
 
         fileRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
             fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                postPic(uri);
+                createCommunity(uri);
                 Picasso.get().load(uri).into(binding.communityImg);
             });
             Toast.makeText(CreatePublicCommunityActivity.this, "Image Uploaded", Toast.LENGTH_SHORT).show();
         }).addOnFailureListener(e -> Toast.makeText(CreatePublicCommunityActivity.this, "Image not uploaded", Toast.LENGTH_SHORT).show());
     }
 
-    public void postPic(Uri uri){
+    public void createCommunity(Uri uri){
         Map<String, Object> communities = new HashMap<>();
         communities.put("dp_url", uri);
         communities.put("is_public", true);
@@ -133,5 +135,6 @@ public class CreatePublicCommunityActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 
 }
