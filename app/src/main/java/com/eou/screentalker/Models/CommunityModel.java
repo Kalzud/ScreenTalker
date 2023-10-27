@@ -1,19 +1,21 @@
 package com.eou.screentalker.Models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CommunityModel implements Serializable {
     //for community
     private String name;
     private String dp_url;
-    private String members;
+    private List<MemberModel> members;
     private String id;
     private boolean is_public;
 
     public CommunityModel() {
     }
 
-    public CommunityModel(String name, String dp_url, String members, boolean is_public, String id) {
+    public CommunityModel(String name, String dp_url, List<MemberModel> members, boolean is_public, String id) {
         this.name = name;
         this.dp_url = dp_url;
         this.members = members;
@@ -37,11 +39,11 @@ public class CommunityModel implements Serializable {
         this.dp_url = dp_url;
     }
 
-    public String getMembers() {
+    public List<MemberModel> getMembers() {
         return members;
     }
 
-    public void setMembers(String members) {
+    public void setMembers(List<MemberModel> members) {
         this.members = members;
     }
 

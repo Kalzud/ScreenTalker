@@ -137,7 +137,8 @@ public class CreatePrivateCommunityActivity extends AppCompatActivity {
                      String communityId = queryDocumentSnapshot.getId();
                      CollectionReference privateGroupCollection = fStore.collection("communities").document(communityId).collection("members");
                     Map<String, Object> memberDetails = new HashMap<>();
-                    memberDetails.put("id", currentUserid);
+                    memberDetails.put("name", preferenceManager.getString(Constants.KEY_NAME));
+                    memberDetails.put("dp", preferenceManager.getString(Constants.KEY_PROFILE_IMAGE));
                     memberDetails.put("canSendText", true);
                     memberDetails.put("admin", true);
                      privateGroupCollection.document(currentUserid).set(memberDetails).addOnSuccessListener(v1 -> System.out.println("done adding"));

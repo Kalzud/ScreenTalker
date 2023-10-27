@@ -70,6 +70,7 @@ public class GroupchatActivity extends AppCompatActivity {
     private void  loadGroupDetails(){
         communityModel = (CommunityModel) getIntent().getSerializableExtra("community");
         binding.textName.setText(communityModel.getName());
+        System.out.println(communityModel.getMembers());
     }
 
     private  void sendMessage(){

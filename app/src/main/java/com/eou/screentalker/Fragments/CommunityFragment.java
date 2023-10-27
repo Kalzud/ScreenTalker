@@ -13,19 +13,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.eou.screentalker.Activities.ChatActivity;
 import com.eou.screentalker.Activities.CreatePrivateCommunityActivity;
 import com.eou.screentalker.Activities.CreatePublicCommunityActivity;
-import com.eou.screentalker.Activities.EditprofileActivity;
 import com.eou.screentalker.Activities.GroupchatActivity;
 import com.eou.screentalker.Adapters.Community_cardAdapter;
 import com.eou.screentalker.Listeners.CommunityListener;
-import com.eou.screentalker.Listeners.UserListener;
 import com.eou.screentalker.Models.CommunityModel;
-import com.eou.screentalker.Models.UserModel;
+import com.eou.screentalker.Models.MemberModel;
 import com.eou.screentalker.Utilities.Constants;
 import com.eou.screentalker.Utilities.PreferenceManager;
-import com.eou.screentalker.databinding.ActivityCreatePrivateCommunityBinding;
 import com.eou.screentalker.databinding.FragmentCommunityBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -47,7 +43,8 @@ public class CommunityFragment extends Fragment implements CommunityListener {
     private String userID;
     private FirebaseFirestore fStore;
     private FragmentCommunityBinding binding;
-
+    private List<MemberModel> members;
+//    private  CollectionReference privateGroupCollection = fStore.collection("communities").document(communityId).collection("members")
 
     public CommunityFragment() {
         // Required empty public constructor
@@ -62,6 +59,8 @@ public class CommunityFragment extends Fragment implements CommunityListener {
         fStore = FirebaseFirestore.getInstance();
         userID = mAuth.getCurrentUser().getUid();
         communityReference = fStore.collection("communities");
+        members = new ArrayList<>();
+//        privateGroupCollection = fStore.collection("communities").document(communityId).collection("members")
 
     }
 
@@ -107,12 +106,13 @@ public class CommunityFragment extends Fragment implements CommunityListener {
                     if (currentUserId.equals(queryDocumentSnapshot.getId())) {
                         continue;
                     }
+
                     CommunityModel community = new CommunityModel();
                     community.setName(queryDocumentSnapshot.getString("name"));
 //                    System.out.println(queryDocumentSnapshot.getString("name"));
                     community.setDp_url(queryDocumentSnapshot.getString("dp_url"));
 //                    System.out.println(queryDocumentSnapshot.getString("Dp_url"));
-                    community.setMembers(queryDocumentSnapshot.getString("members"));
+                    community.setMembers(null);
                     community.setIs_public(Boolean.TRUE.equals(queryDocumentSnapshot.getBoolean("is_public")));
                     community.setId(queryDocumentSnapshot.getId());
                     communitys.add(community);
@@ -145,12 +145,21 @@ public class CommunityFragment extends Fragment implements CommunityListener {
                             if (currentUserId.equals(queryDocumentSnapshot.getId())) {
                                 continue;
                             }
+                            communityReference.document(queryDocumentSnapshot.getId()).collection("members").get().addOnCompleteListener(v -> {
+                                for(QueryDocumentSnapshot queryDocumentSnapshot1: v.getResult()){
+                                    MemberModel member = new MemberModel();
+                                    member.id = queryDocumentSnapshot1.getString("id");
+                                    member.canSendText = Boolean.TRUE.equals(queryDocumentSnapshot1.getBoolean("canSendText"));
+                                    member.admin = Boolean.FALSE.equals(queryDocumentSnapshot1.getBoolean("admin"));
+                                    members.add(member);
+                                }
+                            });
                             CommunityModel community = new CommunityModel();
                             community.setName(queryDocumentSnapshot.getString("name"));
 //                    System.out.println(queryDocumentSnapshot.getString("name"));
                             community.setDp_url(queryDocumentSnapshot.getString("dp_url"));
 //                    System.out.println(queryDocumentSnapshot.getString("Dp_url"));
-                            community.setMembers(queryDocumentSnapshot.getString("members"));
+                            community.setMembers(members);
                             community.setIs_public(Boolean.FALSE.equals(queryDocumentSnapshot.getBoolean("is_public")));
                             community.setId(queryDocumentSnapshot.getId());
                             communitys.add(community);
@@ -175,6 +184,8 @@ public class CommunityFragment extends Fragment implements CommunityListener {
     public void showErrorMessage(){
         Toast.makeText(requireContext(), "No users available", Toast.LENGTH_SHORT).show();
     }
+
+//    public void getModels(){}
 
     @Override
     public void onCommunityClicked(CommunityModel community) {
