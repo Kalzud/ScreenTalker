@@ -98,7 +98,7 @@ public class PlayActivity extends AppCompatActivity {
         super.onStart();
         progressDialog.setMessage("Loading.....");
         progressDialog.setTitle("Loading");
-        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setCanceledOnTouchOutside(true);
         progressDialog.show();
         VideoView videoView = findViewById(R.id.video_view);
         Uri videoUri = Uri.parse(VIDEO_URL);

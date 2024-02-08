@@ -61,16 +61,16 @@ public class MessagesFragment extends Fragment implements FriendListener {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getUsers();
+        getFriends();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getUsers();
+        getFriends();
     }
 
-    public void getUsers(){
+    public void getFriends(){
         loading(true);
         collectionReference.get().addOnCompleteListener(querySnapshotTask -> {
             loading(false);

@@ -2,6 +2,7 @@ package com.eou.screentalker.Adapters;
 
 import android.net.Uri;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendVi
 
     private final List<FriendModel> friends;
     private final FriendListener friendListener;
+    private int select = 1;
 
     public  FriendsAdapter(List<FriendModel> friends, FriendListener friendListener){
             this.friends = friends;
@@ -53,7 +55,18 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendVi
             binding.textName.setText(friend.friend_username);
     //            binding.pImage.setImageURI(Uri.parse(friend.getpImage_url()));
             Picasso.get().load(Uri.parse(friend.friend_pImage)).into(binding.pImage);
-            binding.getRoot().setOnClickListener(v-> friendListener.onFriendClicked(friend));
+            binding.getRoot().setOnClickListener(v-> {
+                if (select == 1){
+                    select = 2;
+                    binding.tick.setVisibility(View.VISIBLE);
+//                    System.out.println("2");
+                }else{
+                    select = 1;
+                    binding.tick.setVisibility(View.GONE);
+//                    System.out.println("1");
+                }
+                friendListener.onFriendClicked(friend);
+            });
         }
     }
 }

@@ -8,6 +8,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +20,7 @@ import com.eou.screentalker.Activities.CreatePublicCommunityActivity;
 import com.eou.screentalker.Activities.GroupchatActivity;
 import com.eou.screentalker.Adapters.Community_cardAdapter;
 import com.eou.screentalker.Listeners.CommunityListener;
+import com.eou.screentalker.Models.Chat_messageModel;
 import com.eou.screentalker.Models.CommunityModel;
 import com.eou.screentalker.Models.MemberModel;
 import com.eou.screentalker.Utilities.Constants;
@@ -25,10 +28,14 @@ import com.eou.screentalker.Utilities.PreferenceManager;
 import com.eou.screentalker.databinding.FragmentCommunityBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -86,6 +93,23 @@ public class CommunityFragment extends Fragment implements CommunityListener {
             Intent intent = new Intent(v.getContext(), CreatePrivateCommunityActivity.class);
             startActivity(intent);
         });
+        binding.inputPublicSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                searchPublicCommunities(s.toString().toLowerCase());
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Trigger a new search when the text changes
+                searchPublicCommunities(s.toString().toLowerCase());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                searchPublicCommunities(s.toString().toLowerCase());
+            }
+        });
 
     }
 
@@ -93,40 +117,146 @@ public class CommunityFragment extends Fragment implements CommunityListener {
     public void onResume() {
         super.onResume();
         getPublicCommunities();
+        getPrivateCommunities();
     }
 
-    public void getPublicCommunities(){
-        communityReference
-                .whereEqualTo("is_public", true)
-                .get().addOnCompleteListener(querySnapshotTask -> {
-            String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
-            if (querySnapshotTask.isSuccessful() && querySnapshotTask.getResult() != null) {
-                List<CommunityModel> communitys = new ArrayList<>();
-                for (QueryDocumentSnapshot queryDocumentSnapshot : querySnapshotTask.getResult()) {
-                    if (currentUserId.equals(queryDocumentSnapshot.getId())) {
-                        continue;
-                    }
+    public void searchPublicCommunities(String searchString) {
+//        String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
 
-                    CommunityModel community = new CommunityModel();
-                    community.setName(queryDocumentSnapshot.getString("name"));
-//                    System.out.println(queryDocumentSnapshot.getString("name"));
-                    community.setDp_url(queryDocumentSnapshot.getString("dp_url"));
-//                    System.out.println(queryDocumentSnapshot.getString("Dp_url"));
-                    community.setMembers(null);
-                    community.setIs_public(Boolean.TRUE.equals(queryDocumentSnapshot.getBoolean("is_public")));
-                    community.setId(queryDocumentSnapshot.getId());
-                    communitys.add(community);
+
+        communityReference.whereEqualTo("is_public", true).addSnapshotListener((value, error) -> {
+            if (error != null) {
+                // Handle error
+                showErrorMessage();
+                return;
+            }
+
+            if (value != null) {
+                List<CommunityModel> communities = new ArrayList<>();
+
+                for (QueryDocumentSnapshot documentSnapshot : value) {
+                    String communityName = documentSnapshot.getString("name");
+
+                    // Check if the community name matches the search pattern using regex
+                    if (communityName != null && communityName.toLowerCase().matches(".*\\b" + escapeRegex(searchString) + "\\b.*")) {
+                        MemberModel member = new MemberModel();
+//                                member = null;
+                        members.add(member);
+                        CommunityModel community = new CommunityModel();
+                        community.setName(communityName);
+                        community.setDp_url(documentSnapshot.getString("dp_url"));
+                        community.setIs_public(Boolean.TRUE.equals(documentSnapshot.getBoolean("is_public")));
+                        community.setMembers(members);
+                        community.setId(documentSnapshot.getId());
+                        communities.add(community);
+                    }
                 }
-                if(communitys.size() > 0){
-                    Community_cardAdapter community_cardAdapter = new Community_cardAdapter(communitys, this);
+
+                if (communities.size() > 0) {
+                    Community_cardAdapter community_cardAdapter = new Community_cardAdapter(communities, this);
                     GridLayoutManager layoutManager = new GridLayoutManager(requireActivity(), 2, GridLayoutManager.VERTICAL, false);
-                    //to reverse layout cause I want to display from the first position so I need the reverse of 3 2 1 0
                     layoutManager.setReverseLayout(true);
-                    binding.publicCommunityRecyclerView.setLayoutManager(layoutManager);
-                    binding.publicCommunityRecyclerView.setAdapter(community_cardAdapter);
-                    binding.publicCommunityRecyclerView.setVisibility(View.VISIBLE);
-                }else{
+                    binding.searchPublicCommunityRecyclerView.setLayoutManager(layoutManager);
+                    binding.searchPublicCommunityRecyclerView.setAdapter(community_cardAdapter);
+                    binding.searchPublicCommunityRecyclerView.setVisibility(View.VISIBLE);
+                    binding.spacing2.setVisibility(View.VISIBLE);
+                } else {
                     showErrorMessage();
+                }
+            }
+        });
+    }
+
+    // Helper method to escape special characters in the search string for regex
+    private String escapeRegex(String input) {
+        return input.replaceAll("[.*+?^${}()|[\\]\\\\]]", "\\\\$0");
+    }
+
+
+
+//    public void searchPublicCommunities(String searchString) {
+//        communityReference.whereEqualTo("is_public", true).addSnapshotListener()
+//            get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful() && task.getResult() != null) {
+//                List<CommunityModel> communities = new ArrayList<>();
+//
+//                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+//                    String communityName = documentSnapshot.getString("name");
+//
+//                    // Check if the community name contains the search string
+//                    if (communityName != null && communityName.toLowerCase().startsWith(searchString)) {
+//                        CommunityModel community = new CommunityModel();
+//                        community.setName(communityName);
+//                        community.setDp_url(documentSnapshot.getString("dp_url"));
+//                        community.setIs_public(Boolean.TRUE.equals(documentSnapshot.getBoolean("is_public")));
+//                        community.setId(documentSnapshot.getId());
+//                        communities.add(community);
+//                    }
+//                }
+//
+//                if (communities.size() > 0) {
+//                    Community_cardAdapter community_cardAdapter = new Community_cardAdapter(communities, this);
+//                    GridLayoutManager layoutManager = new GridLayoutManager(requireActivity(), 2, GridLayoutManager.VERTICAL, false);
+//                    layoutManager.setReverseLayout(true);
+//                    System.out.println(communities.size());
+//                    binding.searchPublicCommunityRecyclerView.setLayoutManager(layoutManager);
+//                    binding.searchPublicCommunityRecyclerView.setAdapter(community_cardAdapter);
+//                    binding.searchPublicCommunityRecyclerView.setVisibility(View.VISIBLE);
+//                    binding.spacing2.setVisibility(View.VISIBLE);
+//                } else {
+//                    showErrorMessage();
+//                }
+//            } else {
+//                showErrorMessage();
+//            }
+//        });
+//    }
+
+
+
+    public void getPublicCommunities(){
+        String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
+        communityReference.whereEqualTo("is_public", true).get().addOnCompleteListener(v-> {
+            if (v.isSuccessful() && v.getResult() != null) {
+                List<CommunityModel> communitys = new ArrayList<>();
+                for (QueryDocumentSnapshot queryDocumentSnapshot: v.getResult()){
+//                    communityReference.document(queryDocumentSnapshot.getId()).collection("members").get().addOnCompleteListener(v1 -> {
+//                        for (QueryDocumentSnapshot queryDocumentSnapshot1: v1.getResult()){
+//                            if(currentUserId.equals(queryDocumentSnapshot1.getId())){
+                                MemberModel member = new MemberModel();
+//                                member = null;
+                                members.add(member);
+
+
+                                System.out.println("ok show the public com");
+                                CommunityModel community = new CommunityModel();
+                                community.setName(queryDocumentSnapshot.getString("name"));
+                                community.setDp_url(queryDocumentSnapshot.getString("dp_url"));
+                                community.setMembers(members);
+                                community.setIs_public(Boolean.TRUE.equals(queryDocumentSnapshot.getBoolean("is_public")));
+                                community.setId(queryDocumentSnapshot.getId());
+                                communitys.add(community);
+                                System.out.println(communitys);
+                                System.out.println(communitys.size());
+//                            }
+
+                            System.out.println(communitys.size());
+                            if(communitys.size() > 0){
+                                System.out.println("Community not null");
+                                Community_cardAdapter community_cardAdapter = new Community_cardAdapter(communitys, this);
+                                GridLayoutManager layoutManager = new GridLayoutManager(requireActivity(), 2, GridLayoutManager.VERTICAL, false);
+                                //to reverse layout cause I want to display from the first position so I need the reverse of 3 2 1 0
+                                layoutManager.setReverseLayout(true);
+                                binding.publicCommunityRecyclerView.setLayoutManager(layoutManager);
+                                binding.publicCommunityRecyclerView.setAdapter(community_cardAdapter);
+                                binding.publicCommunityRecyclerView.setVisibility(View.VISIBLE);
+
+                            }else{
+                                showErrorMessage();
+                            }
+//                        }
+//                    }
+//                    );
                 }
             }else{
                 showErrorMessage();
@@ -135,51 +265,59 @@ public class CommunityFragment extends Fragment implements CommunityListener {
     }
 
     public void getPrivateCommunities(){
-        communityReference
-                .whereEqualTo("is_public", false)
-                .get().addOnCompleteListener(querySnapshotTask -> {
-                    String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
-                    if (querySnapshotTask.isSuccessful() && querySnapshotTask.getResult() != null) {
-                        List<CommunityModel> communitys = new ArrayList<>();
-                        for (QueryDocumentSnapshot queryDocumentSnapshot : querySnapshotTask.getResult()) {
-                            if (currentUserId.equals(queryDocumentSnapshot.getId())) {
-                                continue;
+        String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
+        communityReference.whereEqualTo("is_public", false).get().addOnCompleteListener(v-> {
+            if (v.isSuccessful() && v.getResult() != null) {
+                List<CommunityModel> communitys = new ArrayList<>();
+                for (QueryDocumentSnapshot queryDocumentSnapshot: v.getResult()){
+                    communityReference.document(queryDocumentSnapshot.getId()).collection("members").get().addOnCompleteListener(v1 -> {
+                        for (QueryDocumentSnapshot queryDocumentSnapshot1: v1.getResult()){
+                            if(currentUserId.equals(queryDocumentSnapshot1.getId())){
+                                MemberModel member = new MemberModel();
+                                member.id = queryDocumentSnapshot1.getId();
+                                member.dp = queryDocumentSnapshot1.getString("dp");
+                                member.name = queryDocumentSnapshot1.getString("name");
+                                member.canSendText = Boolean.TRUE.equals(queryDocumentSnapshot1.getBoolean("canSendText"));
+                                member.admin = Boolean.TRUE.equals(queryDocumentSnapshot1.getBoolean("admin"));
+                                members.add(member);
+
+
+                                System.out.println("ok show the prive com");
+                                CommunityModel community = new CommunityModel();
+                                community.setName(queryDocumentSnapshot.getString("name"));
+                                community.setDp_url(queryDocumentSnapshot.getString("dp_url"));
+                                community.setMembers(members);
+                                community.setIs_public(Boolean.TRUE.equals(queryDocumentSnapshot.getBoolean("is_public")));
+                                community.setId(queryDocumentSnapshot.getId());
+                                communitys.add(community);
+                                System.out.println(communitys);
+                                System.out.println(communitys.size());
                             }
-                            communityReference.document(queryDocumentSnapshot.getId()).collection("members").get().addOnCompleteListener(v -> {
-                                for(QueryDocumentSnapshot queryDocumentSnapshot1: v.getResult()){
-                                    MemberModel member = new MemberModel();
-                                    member.id = queryDocumentSnapshot1.getString("id");
-                                    member.canSendText = Boolean.TRUE.equals(queryDocumentSnapshot1.getBoolean("canSendText"));
-                                    member.admin = Boolean.FALSE.equals(queryDocumentSnapshot1.getBoolean("admin"));
-                                    members.add(member);
-                                }
-                            });
-                            CommunityModel community = new CommunityModel();
-                            community.setName(queryDocumentSnapshot.getString("name"));
-//                    System.out.println(queryDocumentSnapshot.getString("name"));
-                            community.setDp_url(queryDocumentSnapshot.getString("dp_url"));
-//                    System.out.println(queryDocumentSnapshot.getString("Dp_url"));
-                            community.setMembers(members);
-                            community.setIs_public(Boolean.FALSE.equals(queryDocumentSnapshot.getBoolean("is_public")));
-                            community.setId(queryDocumentSnapshot.getId());
-                            communitys.add(community);
+
+                            System.out.println(communitys.size());
+                            if(communitys.size() > 0){
+                                System.out.println("Community not null");
+                                Community_cardAdapter community_cardAdapter = new Community_cardAdapter(communitys, this);
+                                GridLayoutManager layoutManager = new GridLayoutManager(requireActivity(), 1, GridLayoutManager.HORIZONTAL, false);
+                                //to reverse layout cause I want to display from the first position so I need the reverse of 3 2 1 0
+                                layoutManager.setReverseLayout(true);
+                                binding.privateRecyclerView.setLayoutManager(layoutManager);
+                                binding.privateRecyclerView.setAdapter(community_cardAdapter);
+                                binding.privateRecyclerView.setVisibility(View.VISIBLE);
+
+                            }else{
+                                showErrorMessage();
+                            }
                         }
-                        if(communitys.size() > 0){
-                            Community_cardAdapter community_cardAdapter = new Community_cardAdapter(communitys, this);
-                            GridLayoutManager layoutManager = new GridLayoutManager(requireActivity(), 1, GridLayoutManager.HORIZONTAL, false);
-                            //to reverse layout cause I want to display from the first position so I need the reverse of 3 2 1 0
-                            layoutManager.setReverseLayout(true);
-                            binding.privateRecyclerView.setLayoutManager(layoutManager);
-                            binding.privateRecyclerView.setAdapter(community_cardAdapter);
-                            binding.privateRecyclerView.setVisibility(View.VISIBLE);
-                        }else{
-                            showErrorMessage();
-                        }
-                    }else{
-                        showErrorMessage();
-                    }
-                });
+                    });
+                }
+            }else{
+                showErrorMessage();
+            }
+        });
     }
+
+
 
     public void showErrorMessage(){
         Toast.makeText(requireContext(), "No users available", Toast.LENGTH_SHORT).show();
@@ -194,3 +332,5 @@ public class CommunityFragment extends Fragment implements CommunityListener {
         startActivity(intent);
     }
 }
+
+

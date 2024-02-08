@@ -2,6 +2,8 @@ package com.eou.screentalker.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
@@ -9,6 +11,7 @@ import com.eou.screentalker.Adapters.ChatAdapter;
 import com.eou.screentalker.Models.Chat_messageModel;
 import com.eou.screentalker.Models.FriendModel;
 import com.eou.screentalker.Models.UserModel;
+import com.eou.screentalker.R;
 import com.eou.screentalker.Utilities.Constants;
 import com.eou.screentalker.Utilities.PreferenceManager;
 import com.eou.screentalker.databinding.ActivityChatBinding;
@@ -16,6 +19,7 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,12 +41,15 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityChatBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        setContentView(R.layout.activity_chat);
+        receiverFriend = (FriendModel) getIntent().getSerializableExtra("friend");
         loadReceiverDetails();
         init();
         listenMesssages();
         binding.imageBack.setOnClickListener(v-> onBackPressed());
         binding.layoutSend.setOnClickListener(v-> sendMessage());
+        binding.pImage.setOnClickListener(v->goToProfile());
+        binding.textName.setOnClickListener(v->goToProfile());
     }
 
     private  void init(){
@@ -54,8 +61,8 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void  loadReceiverDetails(){
-        receiverFriend = (FriendModel) getIntent().getSerializableExtra("friend");
         binding.textName.setText(receiverFriend.friend_username);
+        Picasso.get().load(Uri.parse(receiverFriend.friend_pImage)).into(binding.pImage);
 //        System.out.println(receiverFriend.getUsername());
     }
 
@@ -116,6 +123,12 @@ public class ChatActivity extends AppCompatActivity {
         }
         binding.progressBar.setVisibility(View.GONE);
     };
+
+    public void goToProfile(){
+        Intent intent = new Intent(this, ProfileActivity.class);
+        intent.putExtra("id", receiverFriend.friend_id);
+        startActivity(intent);
+    }
 }
 
 

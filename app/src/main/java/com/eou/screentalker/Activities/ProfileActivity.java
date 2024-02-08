@@ -1,5 +1,6 @@
 package com.eou.screentalker.Activities;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -9,13 +10,20 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import com.eou.screentalker.Adapters.PartAdapter;
 import com.eou.screentalker.Adapters.PostAdapter;
+import com.eou.screentalker.Models.CommunityModel;
 import com.eou.screentalker.Models.Group_chat_messageModel;
+import com.eou.screentalker.Models.MemberModel;
+import com.eou.screentalker.Models.PartModel;
 import com.eou.screentalker.Models.PostModel;
 import com.eou.screentalker.Utilities.Constants;
 import com.eou.screentalker.Utilities.PreferenceManager;
 //import com.eou.screentalker.databinding.ActivityProfileB;
 import com.eou.screentalker.databinding.ActivityProfileBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -38,15 +46,18 @@ public class ProfileActivity extends AppCompatActivity {
     private ActivityProfileBinding binding;
     private FirebaseFirestore fStore;
     private  String id;
+    private  String source;
     private DocumentReference documentReference;
     private CollectionReference collectionReference;
     private CollectionReference collectionReference1;
     private PreferenceManager preferenceManager;
     private CollectionReference postReference;
+    private CollectionReference viewedReference;
     private boolean isFriend;
     private boolean isRequested;
     private boolean isRequestedYou;
     private String currentUserid;
+    private MemberModel memberModel;
 
 
     @Override
@@ -56,17 +67,29 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         preferenceManager = new PreferenceManager(getApplicationContext());
         fStore = FirebaseFirestore.getInstance();
-        id = getIntent().getStringExtra("id");
+        memberModel = (MemberModel) getIntent().getSerializableExtra("member");
+        source = getIntent().getStringExtra("source");
+        if("members".equals(source)){
+            id = memberModel.id;
+        }
+//        else if("friends".equals(source)){
+//            id = fri
+//        }
+        else {
+            id = getIntent().getStringExtra("id");
+        }
         documentReference = fStore.collection("users").document(id);
         collectionReference = fStore.collection("requests");
         collectionReference1 = fStore.collection("friends");
         postReference = fStore.collection("posts");
+        viewedReference = fStore.collection("watched").document(id).collection("parts");
         currentUserid = preferenceManager.getString(Constants.KEY_USER_ID);
         isFriend = false;
         isRequested = false;
         isRequestedYou = false;
 
         getPosts();
+
         documentReference.addSnapshotListener((value, error) -> {
             //setting this to show the current data in database on xml
             Picasso.get().load(Uri.parse(value.getString("pImage_url"))).into(binding.imageProfile);
@@ -126,6 +149,9 @@ public class ProfileActivity extends AppCompatActivity {
             }else if (isFriend){
                 binding.requested.setVisibility(View.GONE);
                 binding.add.setVisibility(View.GONE);
+                binding.remove.setVisibility(View.VISIBLE);
+                binding.viewed.setVisibility(View.VISIBLE);
+                getViewedMovies();
                 System.out.println("reached here7");
             }else if (isRequested){
                 binding.requested.setVisibility(View.VISIBLE);
@@ -137,6 +163,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         binding.add.setOnClickListener(v -> add());
+        binding.remove.setOnClickListener(v -> remove());
     }
 
     private  void add(){
@@ -148,6 +175,43 @@ public class ProfileActivity extends AppCompatActivity {
         fStore.collection("requests").add(request);
         binding.add.setVisibility(View.GONE);
         binding.requested.setVisibility(View.VISIBLE);
+    }
+
+    private void remove(){
+            // Query where "friend_username" is equal to 'id' and "person_username" is equal to 'currentUserId'
+            Task<QuerySnapshot> firstQuery = collectionReference1
+                    .whereEqualTo("friend_id", id)
+                    .whereEqualTo("person_id", currentUserid)
+                    .get();
+
+        // Query where "friend_username" is equal to 'currentUserId' and "person_username" is equal to 'id'
+                Task<QuerySnapshot> secondQuery = collectionReference1
+                        .whereEqualTo("friend_id", currentUserid)
+                        .whereEqualTo("person_id", id)
+                        .get();
+
+        // Combine the results of both queries
+                Tasks.whenAllComplete(firstQuery, secondQuery)
+                        .addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
+                            @Override
+                            public void onComplete(@NonNull Task<List<Task<?>>> task) {
+                                if (task.isSuccessful()) {
+                                    for (Task<?> queryTask : task.getResult()) {
+                                        if (queryTask.isSuccessful()) {
+                                            QuerySnapshot result = (QuerySnapshot) queryTask.getResult();
+                                            for (QueryDocumentSnapshot document : result) {
+                                                System.out.println(document.getId());
+                                                collectionReference1.document(document.getId()).delete();
+                                            }
+                                        } else {
+                                            showErrorMessage();
+                                        }
+                                    }
+                                } else {
+                                    showErrorMessage();
+                                }
+                            }
+                        });
     }
 
     public void getPosts(){
@@ -188,5 +252,41 @@ public class ProfileActivity extends AppCompatActivity {
 
     public void showErrorMessage(){
         Toast.makeText(this, "No posts available", Toast.LENGTH_SHORT).show();
+    }
+
+    public void getViewedMovies(){
+        if(isFriend){
+            List<PartModel> parts = new ArrayList<>();
+            viewedReference
+                    .get().addOnCompleteListener(querySnapshotTask -> {
+                        if (querySnapshotTask.isSuccessful() && querySnapshotTask.getResult() != null) {
+                            List<PostModel> posts = new ArrayList<>();
+                            for (QueryDocumentSnapshot queryDocumentSnapshot : querySnapshotTask.getResult()) {
+//                            if (currentUserId.equals(queryDocumentSnapshot.getId())) {
+//                                continue;
+//                            }
+                                PartModel part = new PartModel();
+                                part.setPart(queryDocumentSnapshot.getString("name"));
+//                    System.out.println(queryDocumentSnapshot.getString("name"));
+                                part.setThumburl(queryDocumentSnapshot.getString("thumbnail"));
+//                    System.out.println(queryDocumentSnapshot.getString("Dp_url"));
+                                parts.add(part);
+                            }
+                            if(parts.size() > 0){
+                                PartAdapter partAdapter = new PartAdapter(parts, this);
+                                GridLayoutManager layoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
+                                //to reverse layout cause I want to display from the first position so I need the reverse of 3 2 1 0
+                                layoutManager.setReverseLayout(true);
+                                binding.viewedRecyclerView.setLayoutManager(layoutManager);
+                                binding.viewedRecyclerView.setAdapter(partAdapter);
+                                binding.viewedRecyclerView.setVisibility(View.VISIBLE);
+                            }else{
+                                showErrorMessage();
+                            }
+                        }else{
+                            showErrorMessage();
+                        }
+                    });
+        }
     }
 }

@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/purple_900"
+    android:id="@+id/userContainer"
     android:padding="@dimen/_8sdp">
 
     <com.makeramen.roundedimageview.RoundedImageView
@@ -38,6 +39,18 @@
         app:layout_constraintBottom_toTopOf="@+id/viewSupporter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/pImage" />
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/tick"
+        android:layout_width="@dimen/_35sdp"
+        android:layout_height="@dimen/_35sdp"
+        android:src="@drawable/ic_baseline_check_24"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        android:background="@drawable/background_tick"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:riv_oval="true"/>
 
     <FrameLayout
         android:layout_width="match_parent"

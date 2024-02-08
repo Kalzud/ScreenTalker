@@ -17,9 +17,11 @@ import android.widget.Toast;
 
 import com.eou.screentalker.Activities.EditprofileActivity;
 import com.eou.screentalker.Activities.PostActivity;
+import com.eou.screentalker.Adapters.PartAdapter;
 import com.eou.screentalker.Adapters.PostAdapter;
 import com.eou.screentalker.Adapters.RequestAdapter;
 import com.eou.screentalker.Listeners.RequestActionListener;
+import com.eou.screentalker.Models.PartModel;
 import com.eou.screentalker.Models.PostModel;
 import com.eou.screentalker.Models.RequestModel;
 import com.eou.screentalker.Utilities.Constants;
@@ -44,6 +46,7 @@ public class Personal_profileFragment extends Fragment{
     private FirebaseFirestore fStore;
     private CollectionReference requestReference;
     private CollectionReference postReference;
+    private CollectionReference viewedReference;
     private Context context;
 
 
@@ -60,6 +63,8 @@ public class Personal_profileFragment extends Fragment{
         fStore = FirebaseFirestore.getInstance();
         requestReference = fStore.collection("requests");
         postReference = fStore.collection("posts");
+        String currentUserID = preferenceManager.getString(Constants.KEY_USER_ID);
+        viewedReference = fStore.collection("watched").document(currentUserID).collection("parts");
     }
 
     @Override
@@ -76,6 +81,7 @@ public class Personal_profileFragment extends Fragment{
         loadUserDetails();
         getInvites();
         getPosts();
+        getViewedMovies();
         binding.editProfile.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), EditprofileActivity.class);
             startActivity(intent);
@@ -93,6 +99,7 @@ public class Personal_profileFragment extends Fragment{
         loadUserDetails();
         getInvites();
         getPosts();
+        getViewedMovies();
     }
 
     private void loadUserDetails(){
@@ -170,6 +177,40 @@ public class Personal_profileFragment extends Fragment{
                             binding.postRecyclerView.setLayoutManager(layoutManager);
                             binding.postRecyclerView.setAdapter(postAdapter);
                             binding.postRecyclerView.setVisibility(View.VISIBLE);
+                        }else{
+                            showErrorMessage();
+                        }
+                    }else{
+                        showErrorMessage();
+                    }
+                });
+    }
+
+    public void getViewedMovies(){
+        List<PartModel> parts = new ArrayList<>();
+        viewedReference
+                .get().addOnCompleteListener(querySnapshotTask -> {
+                    if (querySnapshotTask.isSuccessful() && querySnapshotTask.getResult() != null) {
+                        List<PostModel> posts = new ArrayList<>();
+                        for (QueryDocumentSnapshot queryDocumentSnapshot : querySnapshotTask.getResult()) {
+//                            if (currentUserId.equals(queryDocumentSnapshot.getId())) {
+//                                continue;
+//                            }
+                            PartModel part = new PartModel();
+                            part.setPart(queryDocumentSnapshot.getString("name"));
+//                    System.out.println(queryDocumentSnapshot.getString("name"));
+                            part.setThumburl(queryDocumentSnapshot.getString("thumbnail"));
+//                    System.out.println(queryDocumentSnapshot.getString("Dp_url"));
+                            parts.add(part);
+                        }
+                        if(parts.size() > 0){
+                            PartAdapter partAdapter = new PartAdapter(parts, requireActivity());
+                            GridLayoutManager layoutManager = new GridLayoutManager(requireActivity(), 2, GridLayoutManager.VERTICAL, false);
+                            //to reverse layout cause I want to display from the first position so I need the reverse of 3 2 1 0
+                            layoutManager.setReverseLayout(true);
+                            binding.viewedRecyclerView.setLayoutManager(layoutManager);
+                            binding.viewedRecyclerView.setAdapter(partAdapter);
+                            binding.viewedRecyclerView.setVisibility(View.VISIBLE);
                         }else{
                             showErrorMessage();
                         }

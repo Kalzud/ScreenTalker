@@ -2,25 +2,26 @@ package com.eou.screentalker.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
-import com.eou.screentalker.Adapters.ChatAdapter;
 import com.eou.screentalker.Adapters.Group_chatAdapter;
-import com.eou.screentalker.Models.Chat_messageModel;
 import com.eou.screentalker.Models.CommunityModel;
 import com.eou.screentalker.Models.Group_chat_messageModel;
+import com.eou.screentalker.Models.MemberModel;
 import com.eou.screentalker.Models.UserModel;
 import com.eou.screentalker.Utilities.Constants;
 import com.eou.screentalker.Utilities.PreferenceManager;
 import com.eou.screentalker.databinding.ActivityGroupchatBinding;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.squareup.picasso.Picasso;
+
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -38,9 +39,10 @@ public class GroupchatActivity extends AppCompatActivity {
     private Group_chatAdapter gChatAdapter;
     private PreferenceManager preferenceManager;
     private FirebaseFirestore fStore;
+    private boolean isPublic;
     private String pImage;
     private String username;
-    private String userID;
+    private String currentUserID;
     private DocumentReference documentReference;
 
     @Override
@@ -50,12 +52,30 @@ public class GroupchatActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         preferenceManager = new PreferenceManager(getApplicationContext());
         fStore = FirebaseFirestore.getInstance();
+        communityModel = (CommunityModel) getIntent().getSerializableExtra("community");
+        isPublic = communityModel.isIs_public();
+        System.out.println(isPublic);
 
         loadGroupDetails();
         listenMesssages();
         init();
+
+        currentUserID = preferenceManager.getString(Constants.KEY_USER_ID);
+        List<MemberModel> members = communityModel.getMembers();
+        for (MemberModel member : members) {
+            if(!isPublic){
+                if(currentUserID.equals(member.id) && member.admin){
+                    binding.imageAdd.setVisibility(View.VISIBLE);
+                    System.out.println("visible here");
+                }
+            }
+        }
+
         binding.imageBack.setOnClickListener(v-> onBackPressed());
         binding.layoutSend.setOnClickListener(v-> sendMessage());
+        binding.imageInfo.setOnClickListener(v-> showListActivity("members"));
+        binding.textName.setOnClickListener(v-> showListActivity("members"));
+        binding.imageAdd.setOnClickListener(v-> showListActivity("friends"));
     }
 
     private  void init(){
@@ -68,9 +88,8 @@ public class GroupchatActivity extends AppCompatActivity {
     }
 
     private void  loadGroupDetails(){
-        communityModel = (CommunityModel) getIntent().getSerializableExtra("community");
         binding.textName.setText(communityModel.getName());
-        System.out.println(communityModel.getMembers());
+        Picasso.get().load(Uri.parse(communityModel.getDp_url())).into(binding.imageInfo);
     }
 
     private  void sendMessage(){
@@ -137,4 +156,14 @@ public class GroupchatActivity extends AppCompatActivity {
         }
         binding.progressBar.setVisibility(View.GONE);
     };
+
+    public void showListActivity(String type){
+        if(!isPublic){
+            Intent intent = new Intent(this, ShowListActivity.class);
+            intent.putExtra("source", type);
+            intent.putExtra("communityId", communityModel.getId());
+            startActivity(intent);
+        }
+    }
+
 }

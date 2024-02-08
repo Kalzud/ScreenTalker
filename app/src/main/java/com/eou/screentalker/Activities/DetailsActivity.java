@@ -126,7 +126,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         partModels = new ArrayList<>();
 //        System.out.println("This is Part model: " + partModels);
-        partAdapter = new PartAdapter(partModels);
+        partAdapter = new PartAdapter(partModels, this);
         part_recyclerView.setAdapter( partAdapter);
         partRef.child("link").child(link_movie).addValueEventListener(new ValueEventListener() {
             @Override

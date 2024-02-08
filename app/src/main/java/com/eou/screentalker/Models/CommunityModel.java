@@ -5,11 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommunityModel implements Serializable {
-    //for community
-    private String name;
-    private String dp_url;
+    private String id, name, dp_url;
     private List<MemberModel> members;
-    private String id;
     private boolean is_public;
 
     public CommunityModel() {
