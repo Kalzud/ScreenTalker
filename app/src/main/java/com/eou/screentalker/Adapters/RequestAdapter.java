@@ -2,6 +2,7 @@ package com.eou.screentalker.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,7 +67,13 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
 
         void setRequestData(RequestModel request){
             binding.name.setText(request.sender_username);
-            Picasso.get().load(Uri.parse(request.sender_pImage)).into(binding.dp);
+            Picasso.get().load(Uri.parse(request.sender_pImage))
+                    .resize(200, 200)  // Target dimensions
+                    .centerCrop()  // Maintain aspect ratio
+                    .placeholder(R.drawable.image_placeholder)  // Placeholder while loading
+                    .error(R.drawable.ic_baseline_image_not_supported_24)  // Image for loading errors
+                    .config(Bitmap.Config.RGB_565)  // Reduce memory usage (optional)
+                    .into(binding.dp);
             binding.accept.setOnClickListener(v-> add(request));
             binding.reject.setOnClickListener(v-> remove(request));
             binding.dp.setOnClickListener(v ->{
@@ -82,9 +89,11 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.MyViewHo
             System.out.println(request.sender_id);
             friend.put("friend_pImage", request.sender_pImage);
             friend.put("friend_username", request.sender_username);
+            friend.put("friend_token", request.sender_token);
             friend.put("person_id", preferenceManager.getString(Constants.KEY_USER_ID));
             friend.put("person_pImage", preferenceManager.getString(Constants.KEY_PROFILE_IMAGE));
             friend.put("person_username", preferenceManager.getString(Constants.KEY_NAME));
+            friend.put("person_token", preferenceManager.getString(Constants.KEY_FCM_TOKEN));
             fStore.collection("friends").add(friend);
             fStore.collection("requests").document(request.id).delete();
             binding.accept.setVisibility(View.GONE);

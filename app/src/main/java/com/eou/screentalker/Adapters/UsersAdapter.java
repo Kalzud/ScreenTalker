@@ -1,5 +1,6 @@
 package com.eou.screentalker.Adapters;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.eou.screentalker.Listeners.UserListener;
 import com.eou.screentalker.Models.UserModel;
 
+import com.eou.screentalker.R;
 import com.eou.screentalker.databinding.ContainerUserBinding;
 import com.squareup.picasso.Picasso;
 
@@ -51,8 +53,13 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHold
 
         void setUserData(UserModel user){
             binding.textName.setText(user.getUsername());
-//            binding.pImage.setImageURI(Uri.parse(user.getpImage_url()));
-            Picasso.get().load(Uri.parse(user.getpImage_url())).into(binding.pImage);
+            Picasso.get().load(Uri.parse(user.getpImage_url()))
+                    .resize(200, 200)  // Target dimensions
+                    .centerCrop()  // Maintain aspect ratio
+                    .placeholder(R.drawable.image_placeholder)  // Placeholder while loading
+                    .error(R.drawable.ic_baseline_image_not_supported_24)  // Image for loading errors
+                    .config(Bitmap.Config.RGB_565)  // Reduce memory usage (optional)
+                    .into(binding.pImage);
             binding.getRoot().setOnClickListener(v-> userListener.onUserClicked(user));
         }
     }

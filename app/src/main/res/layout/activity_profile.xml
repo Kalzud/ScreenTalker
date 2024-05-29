@@ -85,8 +85,8 @@
                 android:background="@color/teal_200"
                 android:text="ADD"
                 android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@+id/bio"
-                app:layout_constraintStart_toStartOf="@+id/bio"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/bio" />
 
             <Button
@@ -100,8 +100,8 @@
                 android:background="@color/red"
                 android:text="REMOVE"
                 android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@+id/bio"
-                app:layout_constraintStart_toStartOf="@+id/bio"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/bio" />
 
             <TextView
@@ -116,8 +116,19 @@
                 android:textSize="24sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/add" />
+                app:layout_constraintTop_toBottomOf="@+id/bio" />
 
+
+            <FrameLayout
+                android:id="@+id/layout"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="70dp"
+                android:layout_marginBottom="0dp"
+                android:background="@color/color_bg_blue"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bio" />
 
             <TextView
                 android:id="@+id/posts"
@@ -130,7 +141,7 @@
                 android:textSize="24sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/requested" />
+                app:layout_constraintTop_toBottomOf="@+id/layout" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/postRecyclerView"
@@ -148,7 +159,6 @@
                 android:layout_margin="16dp"
                 android:layout_marginTop="30dp"
                 android:text="Seen movies"
-                android:visibility="gone"
                 android:textColor="@color/white"
                 android:textSize="24sp"
                 app:layout_constraintEnd_toEndOf="parent"

@@ -86,6 +86,7 @@ public class CommentFragment extends Fragment {
         binding.layoutSend.setOnClickListener(v-> sendComment());
     }
 
+    //private constructor
     private  void init(){
         preferenceManager = new PreferenceManager(requireActivity());
         comments = new ArrayList<>();

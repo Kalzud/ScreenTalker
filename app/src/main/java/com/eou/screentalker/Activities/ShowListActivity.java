@@ -5,9 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import com.eou.screentalker.Adapters.FriendsAdapter;
 import com.eou.screentalker.Adapters.MemberAdapter;
+import com.eou.screentalker.Fragments.CommunityFragment;
 import com.eou.screentalker.Listeners.FriendListener;
 import com.eou.screentalker.Listeners.MemberListener;
 import com.eou.screentalker.Models.FriendModel;
@@ -65,10 +67,6 @@ public class ShowListActivity extends AppCompatActivity implements MemberListene
             if (querySnapshotTask.isSuccessful() && querySnapshotTask.getResult() != null) {
                 List<MemberModel> members = new ArrayList<>();;
                 for (QueryDocumentSnapshot queryDocumentSnapshot : querySnapshotTask.getResult()) {
-//                    if (currentUserId.equals(queryDocumentSnapshot.getId())) {
-//                        continue;
-//                    }
-
                     MemberModel member = new MemberModel();
                     member.id = queryDocumentSnapshot.getId();
                     member.dp = queryDocumentSnapshot.getString("dp");
@@ -191,20 +189,24 @@ public class ShowListActivity extends AppCompatActivity implements MemberListene
             memberDetails.put("admin", false);
             collectionReference.document(friendModel.friend_id).set(memberDetails).addOnSuccessListener(v1 -> System.out.println("done adding"));
         }
+        showToast("Friends have been added to group");
+        finish();
     }
 
     public void leaveGroup(CollectionReference collectionReference){
         String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
         DocumentReference userDoc = collectionReference.document(currentUserId);
         userDoc.delete().addOnCompleteListener(v -> System.out.println("deleted"));
+        finish();
     }
 
 
     @Override
     public void onFriendClicked(FriendModel friend) {
-        System.out.println("here");
-
+//        System.out.println("here");
+        //if friend is in not in new member list
         if(select == 1){
+            //add to new member list
             select = 2;
             if (!newMembers.contains(friend)) {
                 // The friend is not already in the list
@@ -212,6 +214,7 @@ public class ShowListActivity extends AppCompatActivity implements MemberListene
             }
             System.out.println(newMembers);
         }else{
+//          remove from new member list
             select = 1;
 
             newMembers.remove(friend);
@@ -219,5 +222,9 @@ public class ShowListActivity extends AppCompatActivity implements MemberListene
         }
 //        newMembers.add(friend);
 //        System.out.println(newMembers);
+    }
+
+    private  void showToast(String message){
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 }

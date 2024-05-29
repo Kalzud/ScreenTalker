@@ -40,6 +40,7 @@ public class GroupchatActivity extends AppCompatActivity {
     private PreferenceManager preferenceManager;
     private FirebaseFirestore fStore;
     private boolean isPublic;
+    private String admin;
     private String pImage;
     private String username;
     private String currentUserID;
@@ -54,17 +55,18 @@ public class GroupchatActivity extends AppCompatActivity {
         fStore = FirebaseFirestore.getInstance();
         communityModel = (CommunityModel) getIntent().getSerializableExtra("community");
         isPublic = communityModel.isIs_public();
+        admin = communityModel.getAdmin();
         System.out.println(isPublic);
 
         loadGroupDetails();
-        listenMesssages();
+        listenMessages();
         init();
 
         currentUserID = preferenceManager.getString(Constants.KEY_USER_ID);
         List<MemberModel> members = communityModel.getMembers();
         for (MemberModel member : members) {
             if(!isPublic){
-                if(currentUserID.equals(member.id) && member.admin){
+                if(currentUserID.equals(member.id) && currentUserID.equals(admin)){
                     binding.imageAdd.setVisibility(View.VISIBLE);
                     System.out.println("visible here");
                 }
@@ -81,7 +83,7 @@ public class GroupchatActivity extends AppCompatActivity {
     private  void init(){
         preferenceManager = new PreferenceManager(getApplicationContext());
         gChatMessages = new ArrayList<>();
-        System.out.println("Top checking: " + pImage);
+        // System.out.println("Top checking: " + pImage);
         gChatAdapter = new Group_chatAdapter(gChatMessages,preferenceManager.getString(Constants.KEY_USER_ID));
         binding.chatRecyclerView.setAdapter(gChatAdapter);
         fStore = FirebaseFirestore.getInstance();
@@ -105,7 +107,7 @@ public class GroupchatActivity extends AppCompatActivity {
         binding.inputMessage.setText(null);
     }
 
-    public void listenMesssages(){
+    public void listenMessages(){
         System.out.println(communityModel.getId());
         fStore.collection("Group chat")
 //                //get where the sender id is the id of current user
@@ -157,6 +159,7 @@ public class GroupchatActivity extends AppCompatActivity {
         binding.progressBar.setVisibility(View.GONE);
     };
 
+    // activity to show the members or friends to be added
     public void showListActivity(String type){
         if(!isPublic){
             Intent intent = new Intent(this, ShowListActivity.class);

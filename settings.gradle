@@ -15,7 +15,8 @@ dependencyResolutionManagement {
         mavenCentral()
         maven {
             url "https://jcenter.bintray.com"
-        }
+            }
+        maven { setUrl("https://jitpack.io") }
     }
 }
 rootProject.name = "ScreenTalker"

@@ -18,11 +18,7 @@ import com.eou.screentalker.Adapters.SliderAdapter;
 import com.eou.screentalker.Models.DataModel;
 
 public class SliderAdapterTest {
-//    private SliderAdapter adapterMock;
-//    @Before
-//    public void setUp(){
-//        SliderAdapter adapterMock = mock(SliderAdapter.class);
-//    }
+
     @Test
     public void testRenewItems() throws NoSuchFieldException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         // Create a mock context for the adapter

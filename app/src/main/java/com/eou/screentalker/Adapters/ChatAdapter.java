@@ -1,6 +1,7 @@
 package com.eou.screentalker.Adapters;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.eou.screentalker.Activities.ProfileActivity;
 import com.eou.screentalker.Models.Chat_messageModel;
+import com.eou.screentalker.R;
 import com.eou.screentalker.databinding.ItemContainerReceivedMessageBinding;
 import com.eou.screentalker.databinding.ItemContainerSentMessageBinding;
 import com.squareup.picasso.Picasso;
@@ -99,7 +101,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         void setData(Chat_messageModel chatMessage, String pImage_url){
             binding.textMessage.setText(chatMessage.message);
             binding.date.setText(chatMessage.dateTime);
-            Picasso.get().load(Uri.parse(pImage_url)).into(binding.pImage);
+            Picasso.get().load(Uri.parse(pImage_url))
+                    .resize(200, 200)  // Target dimensions
+                    .centerCrop()  // Maintain aspect ratio
+                    .placeholder(R.drawable.image_placeholder)  // Placeholder while loading
+                    .error(R.drawable.ic_baseline_image_not_supported_24)  // Image for loading errors
+                    .config(Bitmap.Config.RGB_565)  // Reduce memory usage (optional)
+                    .into(binding.pImage);
             binding.pImage.setOnClickListener(v ->{
                 Intent intent = new Intent(v.getContext(), ProfileActivity.class);
                 intent.putExtra("id", chatMessage.senderID);

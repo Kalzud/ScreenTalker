@@ -1,19 +1,19 @@
 package com.eou.screentalker.Activities;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.eou.screentalker.Adapters.PartAdapter;
 import com.eou.screentalker.Adapters.PostAdapter;
-import com.eou.screentalker.Models.CommunityModel;
-import com.eou.screentalker.Models.Group_chat_messageModel;
 import com.eou.screentalker.Models.MemberModel;
 import com.eou.screentalker.Models.PartModel;
 import com.eou.screentalker.Models.PostModel;
@@ -25,25 +25,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private ActivityProfileBinding binding;
+    public ActivityProfileBinding binding;
     private FirebaseFirestore fStore;
     private  String id;
     private  String source;
@@ -53,11 +47,17 @@ public class ProfileActivity extends AppCompatActivity {
     private PreferenceManager preferenceManager;
     private CollectionReference postReference;
     private CollectionReference viewedReference;
-    private boolean isFriend;
-    private boolean isRequested;
-    private boolean isRequestedYou;
+    public boolean isFriend;
+    public boolean isRequested;
+    public boolean isRequestedYou;
     private String currentUserid;
     private MemberModel memberModel;
+
+    public boolean areFriendChecksDone = false;
+    public boolean areRequestChecksDone = false;
+    public int foundFriend = 0;
+    public int foundRequest = 0;
+    public int foundRequestedYou = 0;
 
 
     @Override
@@ -71,11 +71,7 @@ public class ProfileActivity extends AppCompatActivity {
         source = getIntent().getStringExtra("source");
         if("members".equals(source)){
             id = memberModel.id;
-        }
-//        else if("friends".equals(source)){
-//            id = fri
-//        }
-        else {
+        } else {
             id = getIntent().getStringExtra("id");
         }
         documentReference = fStore.collection("users").document(id);
@@ -84,12 +80,9 @@ public class ProfileActivity extends AppCompatActivity {
         postReference = fStore.collection("posts");
         viewedReference = fStore.collection("watched").document(id).collection("parts");
         currentUserid = preferenceManager.getString(Constants.KEY_USER_ID);
-        isFriend = false;
-        isRequested = false;
-        isRequestedYou = false;
-
+        assignStatus();
         getPosts();
-
+//        getViewedMovies();
         documentReference.addSnapshotListener((value, error) -> {
             //setting this to show the current data in database on xml
             Picasso.get().load(Uri.parse(value.getString("pImage_url"))).into(binding.imageProfile);
@@ -105,62 +98,32 @@ public class ProfileActivity extends AppCompatActivity {
         collectionReference.get().addOnCompleteListener(v -> {
             System.out.println("reached here4");
             for(QueryDocumentSnapshot queryDocumentSnapshot: v.getResult()){
-                if(currentUserid.equals(queryDocumentSnapshot.getString("sender_id")) && id.equals(queryDocumentSnapshot.getString("receiver_id"))){
-//                    binding.add.setVisibility(View.GONE);
-//                    binding.requested.setVisibility(View.VISIBLE);
-                    System.out.println("reached here5");
-                    isRequested = true;
-                    isRequestedYou = false;
-                }else if (currentUserid.equals(queryDocumentSnapshot.getString("receiver_id")) && id.equals(queryDocumentSnapshot.getString("sender_id"))){
-                    isRequested = false;
-                    isRequestedYou = true;
-                    System.out.println("reached here5.1");
-                }else{
-                    isRequestedYou = false;
-                    isRequested = false;
-                }
+                System.out.println("reached here4.3");
+                String senderID = queryDocumentSnapshot.getString("sender_id");
+                String receiverID = queryDocumentSnapshot.getString("receiver_id");
+                checkRequestStatus(senderID, receiverID, currentUserid, id);
+                assignStatus();
+//                checkStatus();
             }
         });
 
         //deciding if to show add, requested or nothing
         collectionReference1.get().addOnCompleteListener(v1 -> {
-            String currentUserid = preferenceManager.getString(Constants.KEY_USER_ID);
+            System.out.println("reached here4.1");
             for(QueryDocumentSnapshot queryDocumentSnapshot1: v1.getResult()){
-                if(currentUserid.equals(queryDocumentSnapshot1.getString("person_id")) && id.equals(queryDocumentSnapshot1.getString("friend_id"))){
-//                    binding.add.setVisibility(View.GONE);
-//                    binding.requested.setVisibility(View.GONE);
-                    System.out.println("reached here1");
-                    isFriend = true;
-                }else if(currentUserid.equals(queryDocumentSnapshot1.getString("friend_id")) && id.equals(queryDocumentSnapshot1.getString("person_id"))) {
-//                    binding.add.setVisibility(View.GONE);
-//                    binding.requested.setVisibility(View.GONE);
-                    System.out.println("reached here2");
-                    isFriend = true;
-                }else{
-//                    binding.add.setVisibility(View.VISIBLE);
-                    System.out.println("reached here3");
-                    isFriend = false;
-                }
-            }
-            if (!isRequested && !isFriend && !isRequestedYou){
-                binding.add.setVisibility(View.VISIBLE);
-                System.out.println("reached here6");
-//            binding.add.setVisibility(View.GONE);
-            }else if (isFriend){
-                binding.requested.setVisibility(View.GONE);
-                binding.add.setVisibility(View.GONE);
-                binding.remove.setVisibility(View.VISIBLE);
-                binding.viewed.setVisibility(View.VISIBLE);
-                getViewedMovies();
-                System.out.println("reached here7");
-            }else if (isRequested){
-                binding.requested.setVisibility(View.VISIBLE);
-                System.out.println("reached here8");
-            }else if(isRequestedYou){
-                binding.requested.setText("Requested You Already");
-                binding.requested.setVisibility(View.VISIBLE);
+                System.out.println("reached here4.2");
+                String personID = queryDocumentSnapshot1.getString("person_id");
+                Log.d("personId", personID);
+                Log.d("userid", currentUserid);
+                String friendID = queryDocumentSnapshot1.getString("friend_id");
+                Log.d("friendId", friendID);
+                Log.d("otherid", id);
+                checkFriendStatus(personID, friendID, currentUserid, id);
+                assignStatus();
+//                checkStatus();
             }
         });
+
 
         binding.add.setOnClickListener(v -> add());
         binding.remove.setOnClickListener(v -> remove());
@@ -171,6 +134,8 @@ public class ProfileActivity extends AppCompatActivity {
         request.put("sender_id", preferenceManager.getString(Constants.KEY_USER_ID));
         request.put("sender_pImage", preferenceManager.getString(Constants.KEY_PROFILE_IMAGE));
         request.put("sender_username", preferenceManager.getString(Constants.KEY_NAME));
+        request.put("sender_token", preferenceManager.getString(Constants.KEY_FCM_TOKEN));
+        System.out.println(preferenceManager.getString(Constants.KEY_FCM_TOKEN));
         request.put("receiver_id", id);
         fStore.collection("requests").add(request);
         binding.add.setVisibility(View.GONE);
@@ -202,20 +167,21 @@ public class ProfileActivity extends AppCompatActivity {
                                             for (QueryDocumentSnapshot document : result) {
                                                 System.out.println(document.getId());
                                                 collectionReference1.document(document.getId()).delete();
+                                                binding.add.setVisibility(View.VISIBLE);
                                             }
                                         } else {
-                                            showErrorMessage();
+                                            showErrorMessage("Unable to remove requests");
                                         }
                                     }
                                 } else {
-                                    showErrorMessage();
+                                    showErrorMessage("Unable to remove requests");
                                 }
                             }
                         });
+
     }
 
     public void getPosts(){
-//        String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
         postReference
                 .whereEqualTo("id", id)
                 .get().addOnCompleteListener(querySnapshotTask -> {
@@ -242,51 +208,144 @@ public class ProfileActivity extends AppCompatActivity {
                             binding.postRecyclerView.setAdapter(postAdapter);
                             binding.postRecyclerView.setVisibility(View.VISIBLE);
                         }else{
-                            showErrorMessage();
+                            showErrorMessage("No post available");
                         }
                     }else{
-                        showErrorMessage();
+                        showErrorMessage("No post available");
                     }
                 });
     }
 
-    public void showErrorMessage(){
-        Toast.makeText(this, "No posts available", Toast.LENGTH_SHORT).show();
+    public void showErrorMessage(String text){
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 
     public void getViewedMovies(){
-        if(isFriend){
             List<PartModel> parts = new ArrayList<>();
             viewedReference
                     .get().addOnCompleteListener(querySnapshotTask -> {
                         if (querySnapshotTask.isSuccessful() && querySnapshotTask.getResult() != null) {
                             List<PostModel> posts = new ArrayList<>();
                             for (QueryDocumentSnapshot queryDocumentSnapshot : querySnapshotTask.getResult()) {
-//                            if (currentUserId.equals(queryDocumentSnapshot.getId())) {
-//                                continue;
-//                            }
                                 PartModel part = new PartModel();
                                 part.setPart(queryDocumentSnapshot.getString("name"));
 //                    System.out.println(queryDocumentSnapshot.getString("name"));
                                 part.setThumburl(queryDocumentSnapshot.getString("thumbnail"));
 //                    System.out.println(queryDocumentSnapshot.getString("Dp_url"));
+                                part.setVidurl(queryDocumentSnapshot.getString("vid"));
                                 parts.add(part);
                             }
                             if(parts.size() > 0){
                                 PartAdapter partAdapter = new PartAdapter(parts, this);
-                                GridLayoutManager layoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
+                                LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+                                layoutManager.setOrientation(RecyclerView.HORIZONTAL);
                                 //to reverse layout cause I want to display from the first position so I need the reverse of 3 2 1 0
                                 layoutManager.setReverseLayout(true);
+                                layoutManager.setStackFromEnd(true);
                                 binding.viewedRecyclerView.setLayoutManager(layoutManager);
                                 binding.viewedRecyclerView.setAdapter(partAdapter);
                                 binding.viewedRecyclerView.setVisibility(View.VISIBLE);
                             }else{
-                                showErrorMessage();
+                                showErrorMessage("No viewed movies available");
                             }
                         }else{
-                            showErrorMessage();
+                            showErrorMessage("No viewed movies available");
                         }
                     });
-        }
     }
+
+
+
+    public void checkFriendStatus(String personID, String friendID, String userId, String profileOwnerId) {
+        //check if user is friend with profile owner
+        if(userId.equals(personID) && profileOwnerId.equals(friendID)){
+            System.out.println("reached here1");
+            foundFriend++;
+            System.out.println(foundFriend);
+        }else
+        if(userId.equals(friendID) && profileOwnerId.equals(personID)) {
+            System.out.println("reached here2");
+            foundFriend++;
+            System.out.println(foundFriend);
+        }
+//        System.out.println(isFriend);
+        areFriendChecksDone = true;
+    }
+
+    public void checkRequestStatus(String senderID, String receiverID, String userId, String profileOwnerId){
+        //check if user received request
+        if(userId.equals(senderID) && profileOwnerId.equals(receiverID)){
+            System.out.println("reached here5");
+            foundRequest++;
+            System.out.println(foundRequest);
+            //check if user sent request
+        }else if (userId.equals(receiverID) && profileOwnerId.equals(senderID)){
+            foundRequestedYou++;
+            System.out.println(foundRequestedYou);
+            System.out.println("reached here5.1");
+        }
+        areRequestChecksDone = true;
+    }
+
+    public void assignStatus(){
+            if(foundFriend > 0){
+                isFriend = true;
+            }else{
+                isFriend = false;
+            }
+            if(foundRequest > 0){
+                isRequested = true;
+            }else{
+                isRequested = false;
+            }
+            if(foundRequestedYou > 0){
+                isRequestedYou = true;
+            }else{
+                isRequestedYou = false;
+            }
+            setXmlBasedOnStatus();
+    }
+
+    //this method was previously checkStatus
+    public void setXmlBasedOnStatus() {
+            if (!isRequested && !isFriend && !isRequestedYou) {
+                if(binding != null){
+                    binding.add.setVisibility(View.VISIBLE);
+                    binding.requested.setVisibility(View.GONE);
+                    binding.remove.setVisibility(View.GONE);
+                }
+                Log.d("No friend or request", "Add button should show");
+                Log.d("No friend", String.valueOf(isFriend));
+                Log.d("requested", String.valueOf(isRequested));
+                Log.d("requested you", String.valueOf(isRequestedYou));
+                System.out.println("reached here6");
+            } else if (isFriend) {
+                if(binding != null){
+                    binding.requested.setVisibility(View.GONE);
+                    binding.add.setVisibility(View.GONE);
+                    binding.remove.setVisibility(View.VISIBLE);
+                    binding.viewed.setVisibility(View.VISIBLE);
+                    getViewedMovies();
+                }
+                Log.d("friend", "Remove button should show");
+                System.out.println("reached here7");
+            } else if (isRequested) {
+                if(binding != null){
+                    binding.requested.setVisibility(View.VISIBLE);
+                    binding.add.setVisibility(View.GONE);
+                    binding.remove.setVisibility(View.GONE);
+                }
+                Log.d("you requested", "you requested");
+                System.out.println("reached here8");
+            } else {
+                if(binding != null){
+                    binding.requested.setText("Requested You Already");
+                    binding.requested.setVisibility(View.VISIBLE);
+                    binding.add.setVisibility(View.GONE);
+                    binding.remove.setVisibility(View.GONE);
+                }
+                Log.d("requested you", "person requested you");
+            }
+    }
+
 }

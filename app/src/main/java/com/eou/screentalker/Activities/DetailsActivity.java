@@ -119,13 +119,10 @@ public class DetailsActivity extends AppCompatActivity {
         DatabaseReference partRef = database.getReference();
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(RecyclerView.HORIZONTAL);
-        //to reverse layout cause I want to display from the first position so I need the reverse of 3 2 1 0
-//        layoutManager.setReverseLayout(true);
-//        layoutManager.setStackFromEnd(true);
         part_recyclerView.setLayoutManager(layoutManager);
 
         partModels = new ArrayList<>();
-//        System.out.println("This is Part model: " + partModels);
+//      System.out.println("This is Part model: " + partModels);
         partAdapter = new PartAdapter(partModels, this);
         part_recyclerView.setAdapter( partAdapter);
         partRef.child("link").child(link_movie).addValueEventListener(new ValueEventListener() {

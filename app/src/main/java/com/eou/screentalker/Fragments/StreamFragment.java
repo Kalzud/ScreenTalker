@@ -7,22 +7,29 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.eou.screentalker.Adapters.PartAdapter;
 import com.eou.screentalker.Models.DataModel;
 import com.eou.screentalker.Adapters.FeaturedAdapter;
 import com.eou.screentalker.Models.FeaturedModel;
+import com.eou.screentalker.Models.PartModel;
 import com.eou.screentalker.R;
 import com.eou.screentalker.Adapters.SeriesAdapter;
 import com.eou.screentalker.Models.SeriesModel;
 import com.eou.screentalker.Adapters.SliderAdapter;
+import com.eou.screentalker.Utilities.Constants;
 import com.eou.screentalker.Utilities.PreferenceManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -31,14 +38,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.smarteist.autoimageslider.IndicatorView.animation.type.IndicatorAnimationType;
 import com.smarteist.autoimageslider.SliderAnimations;
 import com.smarteist.autoimageslider.SliderView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 /**
  *  Author: Emmanuel O. Uduma
@@ -61,11 +74,14 @@ public class StreamFragment extends Fragment {
     private SeriesAdapter seriesAdapter;
     private RecyclerView featuredRecyclerView;
     private RecyclerView seriesRecyclerView;
+    private RecyclerView recommendedRecyclerView;
     private PreferenceManager preferenceManager;
     private CollectionReference documentReference;
+    private CollectionReference partRef;
     private FirebaseAuth mAuth;
     private String userID;
     private FirebaseFirestore fStore;
+
 
 
 
@@ -129,6 +145,7 @@ public class StreamFragment extends Fragment {
 
         featuredRecyclerView = view.findViewById(R.id.privateRecyclerView);
         seriesRecyclerView = view.findViewById(R.id.seriesRecyclerView);
+        recommendedRecyclerView = view.findViewById(R.id.recommendedRecyclerView);
 
 
 // get the toolbar
@@ -152,7 +169,15 @@ public class StreamFragment extends Fragment {
 //        to load data from firebase
         loadFirebaseForSlider();
         loadFeaturedData();
+        recommendMovies();
+//        getRecommendations();
 
+    }
+
+    @Override
+    public void onResume() {
+        recommendMovies();
+        super.onResume();
     }
 
     private void loadFeaturedData() {
@@ -222,26 +247,127 @@ public class StreamFragment extends Fragment {
 
     }
 
-//    public void getUsers(){
-//        documentReference.get().addOnCompleteListener(querySnapshotTask -> {
-//            String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
-//            if (querySnapshotTask.isSuccessful() && querySnapshotTask.getResult() != null) {
-//                List<UserModel> users = new ArrayList<>();
-//                for (QueryDocumentSnapshot queryDocumentSnapshot : querySnapshotTask.getResult()) {
-//                    if (currentUserId.equals(queryDocumentSnapshot.getId())) {
-//                        continue;
-//                    }
-//                    UserModel user = new UserModel();
-//                    user.setUsername(queryDocumentSnapshot.getString(Constants.KEY_NAME));
-//                    user.setpImage_url(queryDocumentSnapshot.getString(Constants.KEY_PROFILE_IMAGE));
-//                    user.setFcmToken(queryDocumentSnapshot.getString(Constants.KEY_FCM_TOKEN));
-//                    user.setEmail(queryDocumentSnapshot.getString(Constants.KEY_EMAIL));
-//                    user.setId(queryDocumentSnapshot.getId());
-//                    users.add(user);
-//                }
-//            }
-//        });
-//    }
+    public void recommendMovies(){
+        String currentUserid = preferenceManager.getString(Constants.KEY_USER_ID);
+        partRef = fStore.collection("watched").document(currentUserid).collection("parts");
+        // Get documents asynchronously using a listener
+        partRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+             @Override
+             public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    // Process retrieved documents and group them by type (explained below)
+                     List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                     groupDocumentsByType(documents);
+                } else {
+                     // Handle errors
+                    Log.w("Firestore", "Error getting documents:", task.getException());
+                }
+            }
+        });
+    }
+
+    private void groupDocumentsByType(List<DocumentSnapshot> documents) {
+         // Use a HashMap to store type as key and document count as value
+         HashMap<String, Integer> typeCountMap = new HashMap<>();
+
+        for (DocumentSnapshot doc : documents) {
+            String type = doc.getString("type");
+            if (type != null) {
+                // Get existing count for this type, or initialize to 0
+                int count = typeCountMap.getOrDefault(type, 0);
+                count++;
+                typeCountMap.put(type, count);
+             }
+        }
+        // Map where each key (type) has the number of documents with that type
+        findMostFrequentType(typeCountMap);
+    }
+
+    private void findMostFrequentType(HashMap<String, Integer> typeCountMap) {
+         String mostFrequentType = null;
+        int maxCount = 0;
+
+         for (Map.Entry<String, Integer> entry : typeCountMap.entrySet()) {
+            String type = entry.getKey();
+             int count = entry.getValue();
+
+             if (count > maxCount) {
+                 mostFrequentType = type;
+                 maxCount = count;
+             }
+        }
+        Log.d("Result", "Most frequent type: " + mostFrequentType + ", Count: " + maxCount);
+         getRecommendations(mostFrequentType);
+    }
+
+
+
+
+
+    private void getRecommendations(String genre) {
+        // Get a reference to the "links" collection
+        DatabaseReference linksRef = FirebaseDatabase.getInstance().getReference("link");
+
+        // Create empty ArrayLists to store recommendations
+        final ArrayList<PartModel> possibleRecommendations = new ArrayList<>();
+        final ArrayList<PartModel> recommendations = new ArrayList<>();
+
+        // Set up RecyclerView layout manager (replace with your desired layout)
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setOrientation(RecyclerView.HORIZONTAL);
+        layoutManager.setReverseLayout(true);
+        layoutManager.setStackFromEnd(true);
+        recommendedRecyclerView.setLayoutManager(layoutManager);
+
+        // Create and set adapter
+        PartAdapter partAdapter = new PartAdapter(recommendations, requireActivity());
+        recommendedRecyclerView.setAdapter(partAdapter);
+
+        // Attach a value event listener to the reference
+        linksRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                possibleRecommendations.clear(); // Clear previous data
+
+                for (DataSnapshot contentSnapshot : snapshot.getChildren()) {
+                    String flinkId = contentSnapshot.getKey();
+                    Log.d("flinkid", flinkId);
+                    for (DataSnapshot childSnapshot : contentSnapshot.getChildren()) { // Loop through all child nodes of the current "flink"
+                        String childKey = childSnapshot.getKey(); // Get the child node key (e.g., "0", "1", "2")
+                        Log.d("childkey", childKey);
+
+                        if (childSnapshot.exists()) {
+                            String type = childSnapshot.child("type").getValue(String.class); // Assuming "type" is present in all child nodes
+
+                            if (type != null && type.equals(genre)) {
+                                PartModel model = childSnapshot.getValue(PartModel.class);
+                                possibleRecommendations.add(model);
+                                Log.d("possiblerecommendations", String.valueOf(possibleRecommendations.size()));
+                            }
+                        }
+                    }
+                }
+
+                // Select and display a random recommendation (if any)
+                if (possibleRecommendations.size() > 0) {
+                    int randomIndex = new Random().nextInt(possibleRecommendations.size());
+                    PartModel recommendedMovie = possibleRecommendations.get(randomIndex);
+                    recommendations.clear(); // Clear existing recommendations
+                    recommendations.add(recommendedMovie);
+                    partAdapter.notifyDataSetChanged();
+                } else {
+                    // Handle the case where there are no comedy movies (optional)
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Handle errors
+                Log.w("Firebase", "Error getting data:", error.toException());
+            }
+        });
+    }
+
 
 
 }

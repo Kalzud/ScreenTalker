@@ -9,6 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -138,16 +140,16 @@ public class Personal_profileFragment extends Fragment{
                             binding.inviteRecyclerView.setAdapter(requestAdapter);
                             binding.inviteRecyclerView.setVisibility(View.VISIBLE);
                         }else{
-                            showErrorMessage();
+                            showErrorMessage("no invites available");
                         }
                     }else{
-                        showErrorMessage();
+                        showErrorMessage("no invites available");
                     }
                 });
     }
 
-    public void showErrorMessage(){
-        Toast.makeText(requireContext(), "No users available", Toast.LENGTH_SHORT).show();
+    public void showErrorMessage(String text){
+        Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show();
     }
 
     public void getPosts(){
@@ -158,13 +160,10 @@ public class Personal_profileFragment extends Fragment{
                     if (querySnapshotTask.isSuccessful() && querySnapshotTask.getResult() != null) {
                         List<PostModel> posts = new ArrayList<>();
                         for (QueryDocumentSnapshot queryDocumentSnapshot : querySnapshotTask.getResult()) {
-//                            if (currentUserId.equals(queryDocumentSnapshot.getId())) {
-//                                continue;
-//                            }
                             PostModel post = new PostModel();
                             post.id = queryDocumentSnapshot.getString("id");
 //                    System.out.println(queryDocumentSnapshot.getString("name"));
-                            post.post = queryDocumentSnapshot.getString("post");
+                            post.post = (queryDocumentSnapshot.getString("post"));
 //                    System.out.println(queryDocumentSnapshot.getString("Dp_url"));
                             post.tag = queryDocumentSnapshot.getString("tag");
                             posts.add(post);
@@ -178,10 +177,10 @@ public class Personal_profileFragment extends Fragment{
                             binding.postRecyclerView.setAdapter(postAdapter);
                             binding.postRecyclerView.setVisibility(View.VISIBLE);
                         }else{
-                            showErrorMessage();
+                            showErrorMessage("no post available");
                         }
                     }else{
-                        showErrorMessage();
+                        showErrorMessage("no post available");
                     }
                 });
     }
@@ -201,21 +200,24 @@ public class Personal_profileFragment extends Fragment{
 //                    System.out.println(queryDocumentSnapshot.getString("name"));
                             part.setThumburl(queryDocumentSnapshot.getString("thumbnail"));
 //                    System.out.println(queryDocumentSnapshot.getString("Dp_url"));
+                            part.setVidurl(queryDocumentSnapshot.getString("vid"));
                             parts.add(part);
                         }
                         if(parts.size() > 0){
                             PartAdapter partAdapter = new PartAdapter(parts, requireActivity());
-                            GridLayoutManager layoutManager = new GridLayoutManager(requireActivity(), 2, GridLayoutManager.VERTICAL, false);
+                            LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+                            layoutManager.setOrientation(RecyclerView.HORIZONTAL);
                             //to reverse layout cause I want to display from the first position so I need the reverse of 3 2 1 0
                             layoutManager.setReverseLayout(true);
+                            layoutManager.setStackFromEnd(true);
                             binding.viewedRecyclerView.setLayoutManager(layoutManager);
                             binding.viewedRecyclerView.setAdapter(partAdapter);
                             binding.viewedRecyclerView.setVisibility(View.VISIBLE);
                         }else{
-                            showErrorMessage();
+                            showErrorMessage("no viewed movies");
                         }
                     }else{
-                        showErrorMessage();
+                        showErrorMessage("no viewed movies");
                     }
                 });
     }

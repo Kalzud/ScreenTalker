@@ -9,12 +9,14 @@ import androidx.navigation.ui.NavigationUI;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.eou.screentalker.Firebase.MessagingService;
 import com.eou.screentalker.R;
 import com.eou.screentalker.Utilities.Constants;
 import com.eou.screentalker.Utilities.PreferenceManager;
@@ -29,7 +31,13 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Author: Emmanuel O. Uduma
@@ -49,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView nameTextView;
     private RoundedImageView pImage;
     private static final int EditprofileActivity_REQUEST_CODE = 1;
+    private MessagingService m;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
         userID = mAuth.getCurrentUser().getUid();
         documentReference = fStore.collection("users").document(userID);
         getToken();
-
-
 
 //        initialise menu layout and action after click on menu bars
         final DrawerLayout drawerLayout = findViewById(R.id.drawLayout);
@@ -102,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
     public void updateToken(String token){
         documentReference.update(Constants.KEY_FCM_TOKEN, token).addOnSuccessListener(unused -> showToast("Token updated successfully"))
                 .addOnFailureListener(e -> showToast("Unable to update token"));
+        preferenceManager.putString(Constants.KEY_FCM_TOKEN, token);
+        System.out.println(preferenceManager.getString(Constants.KEY_FCM_TOKEN));
     }
      public void setUserHeadingDetails(){
          nameTextView.setText(preferenceManager.getString(Constants.KEY_NAME));

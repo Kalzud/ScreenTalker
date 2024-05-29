@@ -10,6 +10,7 @@ public class FeaturedModel {
     private String Ftitle;
     private String Tlink;
 
+
     public FeaturedModel() {
     }
 

@@ -55,4 +55,9 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="title_activity_create_community">CreateCommunityActivity</string>
     <string name="title_activity_create_private_community">CreatePrivateCommunityActivity</string>
+    <string name="title_activity_chat">ChatActivity</string>
+
+    <string name="token">007eJxTYODnTuMv+DfPqPXkzZh5HmKfGHIl9shz+kf77VPZprxVPkSBwdTUKNHI2CDN1MAo0cQ4ydLCNCnR0iQlJdkkxSTJItWgZvX91IZARoYDgfuZGBkgEMTnYihOLkpNzStJzMlmYAAAFz0fkw==</string>
+    <string name="APPID">552a230f502a43b985ba94ddc4d4b8e0</string>
+    <string name="channel">screentalk</string>
 </resources>

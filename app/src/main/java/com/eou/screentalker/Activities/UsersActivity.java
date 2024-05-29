@@ -66,16 +66,16 @@ public class UsersActivity extends AppCompatActivity implements UserListener {
                     binding.usersRecyclerView.setAdapter(usersAdapter);
                     binding.usersRecyclerView.setVisibility(View.VISIBLE);
                 }else{
-                    showErrorMessage();
+                    showErrorMessage("No user available");
                 }
             }else{
-                showErrorMessage();
+                showErrorMessage("No user available");
             }
         });
     }
 
-    public void showErrorMessage(){
-        binding.errorMsg.setText(String.format("%s", "No user available"));
+    public void showErrorMessage(String text){
+        binding.errorMsg.setText(String.format("%s", text));
         binding.errorMsg.setVisibility(View.VISIBLE);
     }
 

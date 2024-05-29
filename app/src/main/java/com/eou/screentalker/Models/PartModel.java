@@ -4,14 +4,16 @@ public class PartModel {
     String part;
     String thumburl;
     String vidurl;
+    String type;
 
     public PartModel() {
     }
 
-    public PartModel(String part, String thumburl, String vidurl) {
+    public PartModel(String part, String thumburl, String vidurl, String type) {
         this.part = part;
         this.thumburl = thumburl;
         this.vidurl = vidurl;
+        this.type = type;
     }
 
     public String getPart() {
@@ -37,4 +39,8 @@ public class PartModel {
     public void setVidurl(String vidurl) {
         this.vidurl = vidurl;
     }
+
+    public String getType() {return type;}
+
+    public void setType(String type) {this.type = type;}
 }

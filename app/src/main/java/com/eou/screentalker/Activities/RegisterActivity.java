@@ -37,13 +37,34 @@ public class RegisterActivity extends AppCompatActivity {
     private TextView goToLogin;
     private EditText inputEmail, inputPassword, inputConfirmPassword, inputUserName, inputDOB;
     private Button btnRegister;
-    private String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
     private ProgressDialog progressDialog;
 
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
     private FirebaseFirestore fStore;
     private PreferenceManager preferenceManager;
+
+    public static boolean isValidEmail(String email) {
+        String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+        return email.matches(emailPattern);
+    }
+
+    public static boolean isValidPassword(String password) {
+        // Minimum password length requirement
+        int minLength = 6;
+
+        // Check if password is empty or less than minimum length
+        return !password.isEmpty() && password.length() >= minLength;
+
+        // Password meets minimum length requirement
+    }
+
+    public static boolean isPasswordMatching(String password, String confirmPassword) {
+        // Check if passwords are equal
+        return password.equals(confirmPassword);
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +79,7 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister = findViewById(R.id.btnRegister);
         progressDialog = new ProgressDialog(RegisterActivity.this);
         mAuth=FirebaseAuth.getInstance();
-        //when you want to use this remove it from her and initialise in method you want to use it in cause mUser returns null here
+        //when you want to use this remove it from here and initialise in method you want to use it in cause mUser returns null here
         mUser=mAuth.getCurrentUser();
         fStore = FirebaseFirestore.getInstance();
         preferenceManager = new PreferenceManager(getApplicationContext());
@@ -77,16 +98,16 @@ public class RegisterActivity extends AppCompatActivity {
         String bio = "Do not! be lame write a bio via edit button";
         String pImage_url = "https://firebasestorage.googleapis.com/v0/b/screentalker-fe07d.appspot.com/o/profile_images%2Fdefault_pImage.png?alt=media&token=682b1d4d-a592-41de-99a0-24f00f1f20fa";
 
-        //validate email
-        if(!email.matches(emailPattern)){
+        // Validate email
+        if (!isValidEmail(email)) {
             inputEmail.setError("Enter an actual Email");
         }
         //validate right password length
-        else if(password.isEmpty() || password.length()<6 ){
+        else if(!isValidPassword(password)){
             inputPassword.setError("Enter password with more than 6 characters");
         }
-        //validate matching passwords
-        else if (!password.equals(confirmPassword)){
+        // Validate matching passwords
+        else if (!isPasswordMatching(password, confirmPassword)) {
             inputPassword.setError("Passwords do not match");
             inputConfirmPassword.setError("Passwords do not match");
         }
@@ -141,7 +162,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void sendToMain() {
         Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 }

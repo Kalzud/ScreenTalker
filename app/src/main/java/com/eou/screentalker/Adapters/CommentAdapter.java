@@ -1,6 +1,7 @@
 package com.eou.screentalker.Adapters;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.eou.screentalker.Activities.ProfileActivity;
 import com.eou.screentalker.Models.CommentModel;
+import com.eou.screentalker.R;
 import com.eou.screentalker.databinding.ContainerCommentBinding;
 import com.squareup.picasso.Picasso;
 
@@ -52,7 +54,13 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         void setData(CommentModel comment){
             binding.textMessage.setText(comment.message);
             binding.date.setText(comment.dateTime);
-            Picasso.get().load(Uri.parse(comment.image)).into(binding.pImage);
+            Picasso.get().load(Uri.parse(comment.image))
+                    .resize(200, 200)  // Target dimensions
+                    .centerCrop()  // Maintain aspect ratio
+                    .placeholder(R.drawable.image_placeholder)  // Placeholder while loading
+                    .error(R.drawable.ic_baseline_image_not_supported_24)  // Image for loading errors
+                    .config(Bitmap.Config.RGB_565)  // Reduce memory usage (optional)
+                    .into(binding.pImage);
             binding.pImage.setOnClickListener(v ->{
                 Intent intent = new Intent(v.getContext(), ProfileActivity.class);
                 intent.putExtra("id", comment.senderID);

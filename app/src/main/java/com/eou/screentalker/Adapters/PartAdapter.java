@@ -49,7 +49,6 @@ public class PartAdapter extends RecyclerView.Adapter<PartAdapter.MyViewHolder> 
     // Helper method to check if the film is already in the watched section
     private void checkIfFilmAlreadyWatched(String filmName, OnCompleteListener<QuerySnapshot> onCompleteListener) {
         // Perform a query to check if the film with the same name already exists
-        // Adjust the query based on your Firestore document structure
         Query query = collectionReference.whereEqualTo("name", filmName);
 
         // Execute the query asynchronously
@@ -76,6 +75,7 @@ public class PartAdapter extends RecyclerView.Adapter<PartAdapter.MyViewHolder> 
             Intent intent = new Intent(v.getContext(), PlayActivity.class);
             intent.putExtra("title", partModels.get(position).getPart());
             intent.putExtra("vid", partModels.get(position).getVidurl());
+            intent.putExtra("type", partModels.get(position).getType());
 
             // Check if the film is already in the watched section
             String filmName = partModels.get(position).getPart();
@@ -90,6 +90,8 @@ public class PartAdapter extends RecyclerView.Adapter<PartAdapter.MyViewHolder> 
                         Map<String, Object> filmDetails = new HashMap<>();
                         filmDetails.put("name", filmName);
                         filmDetails.put("thumbnail", partModels.get(position).getThumburl());
+                        filmDetails.put("vid", partModels.get(position).getVidurl());
+                        filmDetails.put("type", partModels.get(position).getType());
                         collectionReference.add(filmDetails);
                     }
                 } else {

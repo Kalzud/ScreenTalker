@@ -93,23 +93,6 @@ public class CommunityFragment extends Fragment implements CommunityListener {
             Intent intent = new Intent(v.getContext(), CreatePrivateCommunityActivity.class);
             startActivity(intent);
         });
-        binding.inputPublicSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                searchPublicCommunities(s.toString().toLowerCase());
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Trigger a new search when the text changes
-                searchPublicCommunities(s.toString().toLowerCase());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                searchPublicCommunities(s.toString().toLowerCase());
-            }
-        });
 
     }
 
@@ -120,75 +103,33 @@ public class CommunityFragment extends Fragment implements CommunityListener {
         getPrivateCommunities();
     }
 
-    public void searchPublicCommunities(String searchString) {
-//        String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
-
-
-        communityReference.whereEqualTo("is_public", true).addSnapshotListener((value, error) -> {
-            if (error != null) {
-                // Handle error
-                showErrorMessage();
-                return;
-            }
-
-            if (value != null) {
-                List<CommunityModel> communities = new ArrayList<>();
-
-                for (QueryDocumentSnapshot documentSnapshot : value) {
-                    String communityName = documentSnapshot.getString("name");
-
-                    // Check if the community name matches the search pattern using regex
-                    if (communityName != null && communityName.toLowerCase().matches(".*\\b" + escapeRegex(searchString) + "\\b.*")) {
-                        MemberModel member = new MemberModel();
-//                                member = null;
-                        members.add(member);
-                        CommunityModel community = new CommunityModel();
-                        community.setName(communityName);
-                        community.setDp_url(documentSnapshot.getString("dp_url"));
-                        community.setIs_public(Boolean.TRUE.equals(documentSnapshot.getBoolean("is_public")));
-                        community.setMembers(members);
-                        community.setId(documentSnapshot.getId());
-                        communities.add(community);
-                    }
-                }
-
-                if (communities.size() > 0) {
-                    Community_cardAdapter community_cardAdapter = new Community_cardAdapter(communities, this);
-                    GridLayoutManager layoutManager = new GridLayoutManager(requireActivity(), 2, GridLayoutManager.VERTICAL, false);
-                    layoutManager.setReverseLayout(true);
-                    binding.searchPublicCommunityRecyclerView.setLayoutManager(layoutManager);
-                    binding.searchPublicCommunityRecyclerView.setAdapter(community_cardAdapter);
-                    binding.searchPublicCommunityRecyclerView.setVisibility(View.VISIBLE);
-                    binding.spacing2.setVisibility(View.VISIBLE);
-                } else {
-                    showErrorMessage();
-                }
-            }
-        });
-    }
-
-    // Helper method to escape special characters in the search string for regex
-    private String escapeRegex(String input) {
-        return input.replaceAll("[.*+?^${}()|[\\]\\\\]]", "\\\\$0");
-    }
-
-
-
 //    public void searchPublicCommunities(String searchString) {
-//        communityReference.whereEqualTo("is_public", true).addSnapshotListener()
-//            get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful() && task.getResult() != null) {
+////        String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
+//
+//
+//        communityReference.whereEqualTo("is_public", true).addSnapshotListener((value, error) -> {
+//            if (error != null) {
+//                // Handle error
+//                showErrorMessage();
+//                return;
+//            }
+//
+//            if (value != null) {
 //                List<CommunityModel> communities = new ArrayList<>();
 //
-//                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+//                for (QueryDocumentSnapshot documentSnapshot : value) {
 //                    String communityName = documentSnapshot.getString("name");
 //
-//                    // Check if the community name contains the search string
-//                    if (communityName != null && communityName.toLowerCase().startsWith(searchString)) {
+//                    // Check if the community name matches the search pattern using regex
+//                    if (communityName != null && communityName.toLowerCase().matches(".*\\b" + escapeRegex(searchString) + "\\b.*")) {
+//                        MemberModel member = new MemberModel();
+////                                member = null;
+//                        members.add(member);
 //                        CommunityModel community = new CommunityModel();
 //                        community.setName(communityName);
 //                        community.setDp_url(documentSnapshot.getString("dp_url"));
 //                        community.setIs_public(Boolean.TRUE.equals(documentSnapshot.getBoolean("is_public")));
+//                        community.setMembers(members);
 //                        community.setId(documentSnapshot.getId());
 //                        communities.add(community);
 //                    }
@@ -198,7 +139,6 @@ public class CommunityFragment extends Fragment implements CommunityListener {
 //                    Community_cardAdapter community_cardAdapter = new Community_cardAdapter(communities, this);
 //                    GridLayoutManager layoutManager = new GridLayoutManager(requireActivity(), 2, GridLayoutManager.VERTICAL, false);
 //                    layoutManager.setReverseLayout(true);
-//                    System.out.println(communities.size());
 //                    binding.searchPublicCommunityRecyclerView.setLayoutManager(layoutManager);
 //                    binding.searchPublicCommunityRecyclerView.setAdapter(community_cardAdapter);
 //                    binding.searchPublicCommunityRecyclerView.setVisibility(View.VISIBLE);
@@ -206,28 +146,24 @@ public class CommunityFragment extends Fragment implements CommunityListener {
 //                } else {
 //                    showErrorMessage();
 //                }
-//            } else {
-//                showErrorMessage();
 //            }
 //        });
 //    }
 
+    // Helper method to escape special characters in the search string for regex
+    private String escapeRegex(String input) {
+        return input.replaceAll("[.*+?^${}()|[\\]\\\\]]", "\\\\$0");
+    }
 
 
     public void getPublicCommunities(){
-        String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
         communityReference.whereEqualTo("is_public", true).get().addOnCompleteListener(v-> {
             if (v.isSuccessful() && v.getResult() != null) {
                 List<CommunityModel> communitys = new ArrayList<>();
                 for (QueryDocumentSnapshot queryDocumentSnapshot: v.getResult()){
-//                    communityReference.document(queryDocumentSnapshot.getId()).collection("members").get().addOnCompleteListener(v1 -> {
-//                        for (QueryDocumentSnapshot queryDocumentSnapshot1: v1.getResult()){
-//                            if(currentUserId.equals(queryDocumentSnapshot1.getId())){
                                 MemberModel member = new MemberModel();
 //                                member = null;
                                 members.add(member);
-
-
                                 System.out.println("ok show the public com");
                                 CommunityModel community = new CommunityModel();
                                 community.setName(queryDocumentSnapshot.getString("name"));
@@ -235,6 +171,7 @@ public class CommunityFragment extends Fragment implements CommunityListener {
                                 community.setMembers(members);
                                 community.setIs_public(Boolean.TRUE.equals(queryDocumentSnapshot.getBoolean("is_public")));
                                 community.setId(queryDocumentSnapshot.getId());
+                                community.setAdmin(null);
                                 communitys.add(community);
                                 System.out.println(communitys);
                                 System.out.println(communitys.size());
@@ -252,14 +189,14 @@ public class CommunityFragment extends Fragment implements CommunityListener {
                                 binding.publicCommunityRecyclerView.setVisibility(View.VISIBLE);
 
                             }else{
-                                showErrorMessage();
+                                showErrorMessage("no public communities");
                             }
 //                        }
 //                    }
 //                    );
                 }
             }else{
-                showErrorMessage();
+                showErrorMessage("no public communities");
             }
         });
     }
@@ -289,6 +226,7 @@ public class CommunityFragment extends Fragment implements CommunityListener {
                                 community.setMembers(members);
                                 community.setIs_public(Boolean.TRUE.equals(queryDocumentSnapshot.getBoolean("is_public")));
                                 community.setId(queryDocumentSnapshot.getId());
+                                community.setAdmin(queryDocumentSnapshot.getString("admin"));
                                 communitys.add(community);
                                 System.out.println(communitys);
                                 System.out.println(communitys.size());
@@ -306,21 +244,21 @@ public class CommunityFragment extends Fragment implements CommunityListener {
                                 binding.privateRecyclerView.setVisibility(View.VISIBLE);
 
                             }else{
-                                showErrorMessage();
+                                showErrorMessage("no private communities");
                             }
                         }
                     });
                 }
             }else{
-                showErrorMessage();
+                showErrorMessage("no private communities");
             }
         });
     }
 
 
 
-    public void showErrorMessage(){
-        Toast.makeText(requireContext(), "No users available", Toast.LENGTH_SHORT).show();
+    public void showErrorMessage(String text){
+        Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show();
     }
 
 //    public void getModels(){}

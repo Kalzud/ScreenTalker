@@ -1,5 +1,6 @@
 package com.eou.screentalker.Adapters;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.eou.screentalker.Models.PostModel;
+import com.eou.screentalker.R;
 import com.eou.screentalker.databinding.PostCardBinding;
 import com.squareup.picasso.Picasso;
 
@@ -46,7 +48,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder>{
 
         void setPostData(PostModel post){
             binding.tag.setText(post.tag);
-            Picasso.get().load(Uri.parse(post.post)).into(binding.post);
+            Picasso.get().load(Uri.parse(post.post))
+                    .resize(200, 200)  // Target dimensions
+                    .centerCrop()  // Maintain aspect ratio
+                    .placeholder(R.drawable.image_placeholder)  // Placeholder while loading
+                    .error(R.drawable.ic_baseline_image_not_supported_24)  // Image for loading errors
+                    .config(Bitmap.Config.RGB_565)  // Reduce memory usage (optional)
+                    .into(binding.post);
         }
 
     }

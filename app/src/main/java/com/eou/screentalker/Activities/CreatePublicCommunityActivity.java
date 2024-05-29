@@ -49,10 +49,8 @@ public class CreatePublicCommunityActivity extends AppCompatActivity {
     private FirebaseFirestore fStore;
     private StorageReference storageReference;
 
-
-
     private ActivityResultLauncher<Intent> someActivityResultLauncher;
-    private CollectionReference collectionReference;
+    public CollectionReference collectionReference;
 
     //variables used for stuff in code
     private Uri imageUri;

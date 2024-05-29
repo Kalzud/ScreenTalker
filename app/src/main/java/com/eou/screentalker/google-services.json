@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "21274954941",
+    "firebase_url": "https://screentalker-fe07d-default-rtdb.firebaseio.com",
+    "project_id": "screentalker-fe07d",
+    "storage_bucket": "screentalker-fe07d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:21274954941:android:5291fd04b91f0e2031fbd4",
+        "android_client_info": {
+          "package_name": "com.eou.screentalker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "21274954941-75dsvl944k8c8ftp6bhd7b3311ljddhg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBo4NMe12c-piunEC-rmbYuMb5VN_xVJFc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "21274954941-75dsvl944k8c8ftp6bhd7b3311ljddhg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

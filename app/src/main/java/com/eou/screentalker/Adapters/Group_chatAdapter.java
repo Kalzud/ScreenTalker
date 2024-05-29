@@ -1,6 +1,7 @@
 package com.eou.screentalker.Adapters;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.eou.screentalker.Activities.ProfileActivity;
 import com.eou.screentalker.Models.Group_chat_messageModel;
+import com.eou.screentalker.R;
 import com.eou.screentalker.databinding.ContainerGroupReceivedMessageBinding;
 import com.eou.screentalker.databinding.ContainerGroupSentMessageBinding;
 import com.squareup.picasso.Picasso;
@@ -101,7 +103,13 @@ public class Group_chatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             binding.date.setText(gChatMessage.dateTime);
             binding.username.setText(gChatMessage.username);
             System.out.println("thitrd checking: " + pImage_url);
-            Picasso.get().load(Uri.parse(gChatMessage.image)).into(binding.pImage);
+            Picasso.get().load(Uri.parse(gChatMessage.image))
+                    .resize(200, 200)  // Target dimensions
+                    .centerCrop()  // Maintain aspect ratio
+                    .placeholder(R.drawable.image_placeholder)  // Placeholder while loading
+                    .error(R.drawable.ic_baseline_image_not_supported_24)  // Image for loading errors
+                    .config(Bitmap.Config.RGB_565)  // Reduce memory usage (optional)
+                    .into(binding.pImage);
             binding.pImage.setOnClickListener(v ->{
                 Intent intent = new Intent(v.getContext(), ProfileActivity.class);
                 intent.putExtra("id", gChatMessage.senderID);

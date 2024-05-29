@@ -57,13 +57,6 @@ public class PostActivity extends AppCompatActivity {
     private Uri imageUri;
     private String userID;
 
-    //user details for updates
-    private String user_username = "";
-    private String user_email = "";
-    private String user_pImage_url = "";
-    private String user_bio = "";
-    private String user_dob = "";
-
     private PreferenceManager preferenceManager;
     private EditprofileActivity.OnRefreshListener mListener;
 
@@ -84,10 +77,6 @@ public class PostActivity extends AppCompatActivity {
         postImg = findViewById(R.id.post_img);
         post = findViewById(R.id.post);
         tag = findViewById(R.id.tag);
-//        btnChange_username = findViewById(R.id.btnChange_username);
-//        btnChange_bio = findViewById(R.id.btnChange_bio);
-//        inputNew_bio = findViewById(R.id.inputNew_bio);
-
 
         //register for activity we would use in openSomeActivityForResult
         someActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -101,24 +90,6 @@ public class PostActivity extends AppCompatActivity {
             }
         });
 
-//        collectionReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-//            @Override
-//            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-//                //setting this to show the current data in database on xml
-//                assert value != null;
-//                Picasso.get().load(Uri.parse(value.getString("pImage_url"))).into(postImg);
-//                tag.setHint(value.getString("username"));
-//                inputNew_bio.setHint(value.getString("bio"));
-//
-//                //setting this variables to content of data in database for updating purposes
-//                user_username = value.getString("username");
-//                user_email = value.getString("email");
-//                user_dob = value.getString("dob");
-//                user_bio = value.getString("bio");
-//                user_pImage_url = value.getString("pImage_url");
-//            }
-//        });
-
         //functions for buttons on xml
         //get picture from gallery
         post.setOnClickListener(v -> {
@@ -127,16 +98,7 @@ public class PostActivity extends AppCompatActivity {
                 mListener.onRefresh();
             }
         });
-//        btnChange_username.setOnClickListener(v -> {
-//            if(tag != null){
-//                updateUsername();}
-//            else {Toast.makeText(PostActivity.this, "You have to put a username", Toast.LENGTH_SHORT).show();}
-//        });
-//        btnChange_bio.setOnClickListener(v -> {
-//            if(inputNew_bio != null)
-//                updateBio();
-//            else Toast.makeText(PostActivity.this, "You have to put a bio", Toast.LENGTH_SHORT).show();
-//        });
+
 
 
         //toolbar settings
@@ -190,26 +152,5 @@ public class PostActivity extends AppCompatActivity {
         post.put("id", preferenceManager.getString(Constants.KEY_USER_ID));
         collectionReference.add(post).addOnSuccessListener(v-> Log.d(TAG, "onsuccess: picture updated for" + userID));
     }
-//    public void updateUsername(){
-//        String tag = this.tag.getText().toString();
-//        preferenceManager.putString(Constants.KEY_NAME, tag);
-//        System.out.println(Constants.KEY_NAME);
-//        Map<String, Object> user = new HashMap<>();
-//        user.put("username", tag);
-//        collectionReference.update(user).addOnSuccessListener(v-> {
-//            Log.d(TAG, "onsuccess: username updated for" + userID);
-//            Toast.makeText(PostActivity.this, "Username updated", Toast.LENGTH_SHORT).show();
-//        });
-//    }
-//    public void updateBio(){
-//        String new_bio = inputNew_bio.getText().toString();
-//        preferenceManager.putString(Constants.KEY_BIO, new_bio);
-//        System.out.println(Constants.KEY_BIO);
-//        Map<String, Object> user = new HashMap<>();
-//        user.put("bio", new_bio);
-//        collectionReference.update(user).addOnSuccessListener(v-> {
-//            Log.d(TAG, "onsuccess: bio updated for" + userID);
-//            Toast.makeText(PostActivity.this, "Bio updated", Toast.LENGTH_SHORT).show();
-//        });
-//    }
+
 }

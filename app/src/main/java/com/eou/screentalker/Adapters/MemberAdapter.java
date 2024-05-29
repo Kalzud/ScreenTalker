@@ -1,5 +1,6 @@
 package com.eou.screentalker.Adapters;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.eou.screentalker.Listeners.MemberListener;
 import com.eou.screentalker.Models.FriendModel;
 import com.eou.screentalker.Models.MemberModel;
+import com.eou.screentalker.R;
 import com.eou.screentalker.databinding.ContainerUserBinding;
 import com.squareup.picasso.Picasso;
 
@@ -51,7 +53,13 @@ public class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MemberView
         void setMemberData(MemberModel member){
             binding.textName.setText(member.name);
             //            binding.pImage.setImageURI(Uri.parse(friend.getpImage_url()));
-            Picasso.get().load(Uri.parse(member.dp)).into(binding.pImage);
+            Picasso.get().load(Uri.parse(member.dp))
+                    .resize(200, 200)  // Target dimensions
+                    .centerCrop()  // Maintain aspect ratio
+                    .placeholder(R.drawable.image_placeholder)  // Placeholder while loading
+                    .error(R.drawable.ic_baseline_image_not_supported_24)  // Image for loading errors
+                    .config(Bitmap.Config.RGB_565)  // Reduce memory usage (optional)
+                    .into(binding.pImage);
             binding.getRoot().setOnClickListener(v-> memberListener.onMemberClicked(member));
         }
     }

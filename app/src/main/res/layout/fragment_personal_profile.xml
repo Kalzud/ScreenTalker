@@ -74,7 +74,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:layout_marginEnd="321dp"
+                android:layout_marginEnd="280dp"
                 android:layout_weight="1"
                 android:layout_marginStart="28dp"
                 android:background="@color/teal_200"
@@ -83,39 +83,19 @@
                 app:layout_constraintStart_toStartOf="@+id/bio"
                 app:layout_constraintTop_toBottomOf="@+id/bio" />
 
+
             <TextView
                 android:id="@+id/invite"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="16dp"
                 android:text="@string/invites"
                 android:textColor="@color/white"
                 android:textSize="24sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/editProfile" />
-
-            <EditText
-                android:id="@+id/inputSearch"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="17dp"
-                android:background="@drawable/input_bg"
-                android:drawableStart="@drawable/ic_baseline_search_24"
-                android:drawablePadding="10dp"
-                android:ems="10"
-                android:hint="Search yours"
-                android:inputType="text"
-                android:paddingLeft="20dp"
-                android:paddingTop="13dp"
-                android:paddingRight="20dp"
-                android:paddingBottom="13dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/invite" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/inviteRecyclerView"
@@ -125,7 +105,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/inputSearch" />
+                app:layout_constraintTop_toBottomOf="@+id/invite" />
 
             <TextView
                 android:id="@+id/posts"

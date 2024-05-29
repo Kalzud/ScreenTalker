@@ -8,16 +8,20 @@ public class CommunityModel implements Serializable {
     private String id, name, dp_url;
     private List<MemberModel> members;
     private boolean is_public;
+    private String admin;
+
+
 
     public CommunityModel() {
     }
 
-    public CommunityModel(String name, String dp_url, List<MemberModel> members, boolean is_public, String id) {
+    public CommunityModel(String name, String dp_url, List<MemberModel> members, boolean is_public, String id, String admin) {
         this.name = name;
         this.dp_url = dp_url;
         this.members = members;
         this.is_public = is_public;
         this.id = id;
+        this.admin = admin;
     }
 
     public String getName() {
@@ -58,5 +62,13 @@ public class CommunityModel implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(String admin) {
+        this.admin = admin;
     }
 }

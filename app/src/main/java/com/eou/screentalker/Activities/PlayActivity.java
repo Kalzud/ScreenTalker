@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -48,12 +49,30 @@ import java.util.Locale;
 
 public class PlayActivity extends AppCompatActivity {
 
+//    public static final String VIDEO_TITLE;
     private String VIDEO_URL;
     ProgressDialog progressDialog;
     private ActivityPlayBinding binding;
     String VIDEO_TITLE;
     private PreferenceManager preferenceManager;
 
+//    public void setupToolbar(String title) {
+//        // Set toolbar title and other properties
+//        getSupportActionBar().setTitle(title);
+//        // ... (rest of toolbar setup)
+//    }
+//
+//    public void loadAndPlayVideo(String videoUrl) {
+//        // Get video view and progress dialog references
+//        VideoView videoView = findViewById(R.id.video_view);
+//        ProgressDialog progressDialog = new ProgressDialog(this);
+//
+//        // Set video URI and visibility
+//        videoView.setVideoURI(Uri.parse(videoUrl));
+//        videoView.setVisibility(View.VISIBLE);
+//
+//        // ... (rest of video loading and playback logic)
+//    }
 
 
     @Override
@@ -84,13 +103,15 @@ public class PlayActivity extends AppCompatActivity {
         System.out.println(VIDEO_URL);
         System.out.println(VIDEO_TITLE);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        ImageView imageback = findViewById(R.id.imageBack);
+        imageback.setOnClickListener(v->onBackPressed());
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(VIDEO_TITLE);
 
         //back button
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setIcon(R.drawable.ic_baseline_arrow_back_ios_24);
+//        getSupportActionBar().setIcon(R.drawable.ic_baseline_arrow_back_ios_24);
     }
 
     @Override
@@ -112,14 +133,14 @@ public class PlayActivity extends AppCompatActivity {
         videoView.setOnPreparedListener(mp -> progressDialog.dismiss());
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        //back on button click
-        if(item.getItemId() == android.R.id.home){
-            super.finish();
-        }
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        //back on button click
+//        if(item.getItemId() == android.R.id.home){
+//            super.finish();
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
 
 }

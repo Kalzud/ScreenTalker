@@ -40,7 +40,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:text="@string/make_community"
+                android:text="Create Community Here"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -78,26 +78,18 @@
 
             </LinearLayout>
 
-            <EditText
-                android:id="@+id/inputSearch"
+            <TextView
+                android:id="@+id/heading_Private_community"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="24dp"
-                android:background="@drawable/input_bg"
-                android:drawableStart="@drawable/ic_baseline_search_24"
-                android:drawablePadding="10dp"
-                android:ems="10"
-                android:hint="Search yours"
-                android:inputType="text"
+                android:layout_margin="16dp"
+                android:text="Private Community"
+                android:textColor="@color/white"
+                android:textSize="20sp"
                 android:paddingLeft="20dp"
                 android:paddingTop="13dp"
                 android:paddingRight="20dp"
                 android:paddingBottom="13dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
@@ -110,26 +102,20 @@
                 android:layout_marginEnd="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/inputSearch" />
+                app:layout_constraintTop_toBottomOf="@+id/heading_Private_community" />
 
-            <EditText
-                android:id="@+id/inputPublicSearch"
+            <TextView
+                android:id="@+id/heading_Public_community"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="25dp"
-                android:background="@drawable/input_bg"
-                android:drawableStart="@drawable/ic_baseline_search_24"
-                android:drawablePadding="10dp"
-                android:ems="10"
-                android:hint="Search Public"
-                android:inputType="text"
+                android:layout_margin="16dp"
+                android:text="Public Community"
+                android:textColor="@color/white"
+                android:textSize="20sp"
                 android:paddingLeft="20dp"
                 android:paddingTop="13dp"
                 android:paddingRight="20dp"
                 android:paddingBottom="13dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/privateRecyclerView" />
 
@@ -143,7 +129,7 @@
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/inputPublicSearch" />
+                app:layout_constraintTop_toBottomOf="@+id/heading_Public_community" />
 
             <FrameLayout
                 android:layout_width="match_parent"
